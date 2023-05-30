@@ -19713,3 +19713,6 @@ msgstr "год назад"
 
 msgid "%(other)s charts will appear here"
 msgstr "%(other)s чарты появятся тут"
+
+msgid "%(other)s dashboards will appear here"
+msgstr "%(other)s дэшборды появятся тут"

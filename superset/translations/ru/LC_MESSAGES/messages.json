@@ -6030,7 +6030,10 @@
       "a week ago": ["неделю назад"],
       "a month ago": ["месяц назад"],
       "a year ago": ["год назад"],
-      "%(other)s charts will appear here": ["%(other)s чарты появятся тут"]
+      "%(other)s charts will appear here": ["%(other)s чарты появятся тут"],
+      "%(other)s dashboards will appear here": [
+        "%(other)s дэшборды появятся тут"
+      ]
     }
   }
 }

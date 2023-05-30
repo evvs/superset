@@ -498,7 +498,7 @@ const RightMenu = ({
                 )}
                 {navbarRight.version_string && (
                   <div css={versionInfoStyles}>
-                    {t('Version')}: {navbarRight.version_string} - 1.1.0
+                    {t('Version')}: {navbarRight.version_string} - 1.1.1
                   </div>
                 )}
                 {navbarRight.version_sha && (
@@ -508,7 +508,7 @@ const RightMenu = ({
                 )}
                 {navbarRight.build_number && (
                   <div css={versionInfoStyles}>
-                    {t('Build')}: {navbarRight.build_number} - 1.1.0
+                    {t('Build')}: {navbarRight.build_number} - 1.1.1
                   </div>
                 )}
               </div>
