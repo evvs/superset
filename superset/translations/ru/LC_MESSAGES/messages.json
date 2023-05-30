@@ -2114,6 +2114,7 @@
       "Export query": ["Экспорт запроса"],
       "Export to .CSV": ["Экспорт в .CSV"],
       "Export to .JSON": ["Экспорт в .JSON"],
+      "Export to Excel": ["Экспорт в Excel"],
       "Export to YAML": ["Экспорт в YAML"],
       "Export to YAML?": ["Экспортировать в YAML?"],
       "Export to full .CSV": ["Экспорт в целый .CSV"],

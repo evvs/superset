@@ -6861,9 +6861,9 @@ msgid "Export to .JSON"
 msgstr "Экспорт в .JSON"
 
 #: superset-frontend/src/explore/components/useExploreAdditionalActionsMenu/index.jsx:335
-#, fuzzy
+# fuzzy
 msgid "Export to Excel"
-msgstr "Экспорт в YAML"
+msgstr "Экспорт в Excel"
 
 #: superset/views/base.py:602
 msgid "Export to YAML"
