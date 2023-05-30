@@ -68,6 +68,8 @@ import {
   PASSWORDS_NEEDED_MESSAGE,
   CONFIRM_OVERWRITE_MESSAGE,
 } from 'src/features/datasets/constants';
+import { useSelector } from 'react-redux';
+import translateToRussianDeltaHumanized from 'src/utils/translateToRussianDeltaHumanized';
 import DuplicateDatasetModal from 'src/features/datasets/DuplicateDatasetModal';
 
 const extensionsRegistry = getExtensionsRegistry();
@@ -181,6 +183,8 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
     sshTunnelPrivateKeyPasswordFields,
     setSSHTunnelPrivateKeyPasswordFields,
   ] = useState<string[]>([]);
+
+  const locale = useSelector<any>(state => state.common.locale);
 
   const openDatasetImportModal = () => {
     showImportModal(true);
@@ -371,7 +375,14 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
           row: {
             original: { changed_on_delta_humanized: changedOn },
           },
-        }: any) => <span className="no-wrap">{changedOn}</span>,
+        }: any) => {
+          const translation =
+            locale === 'ru'
+              ? translateToRussianDeltaHumanized(changedOn)
+              : changedOn;
+
+          return <span className="no-wrap">{translation}</span>;
+        },
         Header: t('Modified'),
         accessor: 'changed_on_delta_humanized',
         size: 'xl',

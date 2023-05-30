@@ -143,7 +143,7 @@ export default class SelectControl extends React.PureComponent {
           const [value, label] = c.length > 1 ? c : [c[0], c[0]];
           return {
             value,
-            label,
+            label: t(label),
           };
         }
         if (Object.is(c)) {

@@ -55,6 +55,8 @@ import { Dashboard as CRUDDashboard } from 'src/views/CRUD/types';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import { loadTags } from 'src/components/Tags/utils';
 import getBootstrapData from 'src/utils/getBootstrapData';
+import { useSelector } from 'react-redux';
+import translateToRussianDeltaHumanized from 'src/utils/translateToRussianDeltaHumanized';
 import DashboardCard from 'src/features/dashboards/DashboardCard';
 import { DashboardStatus } from 'src/features/dashboards/types';
 
@@ -155,6 +157,8 @@ function DashboardList(props: DashboardListProps) {
     sshTunnelPrivateKeyPasswordFields,
     setSSHTunnelPrivateKeyPasswordFields,
   ] = useState<string[]>([]);
+
+  const locale = useSelector<any>(state => state.common.locale);
 
   const openDashboardImportModal = () => {
     showImportModal(true);
@@ -343,7 +347,13 @@ function DashboardList(props: DashboardListProps) {
           row: {
             original: { changed_on_delta_humanized: changedOn },
           },
-        }: any) => <span className="no-wrap">{changedOn}</span>,
+        }: any) => (
+          <span className="no-wrap">
+            {locale === 'ru'
+              ? translateToRussianDeltaHumanized(changedOn)
+              : changedOn}
+          </span>
+        ),
         Header: t('Modified'),
         accessor: 'changed_on_delta_humanized',
         size: 'xl',

@@ -50,6 +50,8 @@ import { isFeatureEnabled } from 'src/featureFlags';
 import ImportModelsModal from 'src/components/ImportModal/index';
 import Icons from 'src/components/Icons';
 import { BootstrapUser } from 'src/types/bootstrapTypes';
+import { useSelector } from 'react-redux';
+import translateToRussianDeltaHumanized from 'src/utils/translateToRussianDeltaHumanized';
 import SavedQueryPreviewModal from 'src/features/queries/SavedQueryPreviewModal';
 
 const PAGE_SIZE = 25;
@@ -122,6 +124,8 @@ function SavedQueryList({
     sshTunnelPrivateKeyPasswordFields,
     setSSHTunnelPrivateKeyPasswordFields,
   ] = useState<string[]>([]);
+
+  const locale = useSelector<any>(state => state.common.locale);
 
   const openSavedQueryImportModal = () => {
     showImportModal(true);
@@ -354,7 +358,14 @@ function SavedQueryList({
             ),
           );
 
-          return moment(utc).fromNow();
+          const creationDate = t(moment(utc).fromNow());
+
+          const translation =
+            locale === 'ru'
+              ? translateToRussianDeltaHumanized(creationDate)
+              : creationDate;
+
+          return translation;
         },
         Header: t('Created on'),
         accessor: 'created_on',
@@ -365,7 +376,10 @@ function SavedQueryList({
           row: {
             original: { changed_on_delta_humanized: changedOn },
           },
-        }: any) => changedOn,
+        }: any) =>
+          locale === 'ru'
+            ? translateToRussianDeltaHumanized(changedOn)
+            : changedOn,
         Header: t('Modified'),
         accessor: 'changed_on_delta_humanized',
         size: 'xl',

@@ -110,3 +110,7 @@ messages.mo
 docker/requirements-local.txt
 
 cache/
+
+data
+
+your_dump.sql

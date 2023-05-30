@@ -754,8 +754,11 @@ ALLOWED_EXTENSIONS = {*EXCEL_EXTENSIONS, *CSV_EXTENSIONS, *COLUMNAR_EXTENSIONS}
 # CSV Options: key/value pairs that will be passed as argument to DataFrame.to_csv
 # method.
 # note: index option should not be overridden
-CSV_EXPORT = {"encoding": "utf-8"}
-
+CSV_EXPORT = {
+    "encoding": "utf-8-sig"
+    ,"sep": ";"
+    ,"decimal": ","
+}
 # Excel Options: key/value pairs that will be passed as argument to DataFrame.to_excel
 # method.
 # note: index option should not be overridden
@@ -1367,7 +1370,7 @@ PREFERRED_DATABASES: List[str] = [
 TEST_DATABASE_CONNECTION_TIMEOUT = timedelta(seconds=30)
 
 # Enable/disable CSP warning
-CONTENT_SECURITY_POLICY_WARNING = True
+CONTENT_SECURITY_POLICY_WARNING = False
 
 # Do you want Talisman enabled?
 TALISMAN_ENABLED = False

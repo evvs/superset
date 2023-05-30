@@ -26,7 +26,7 @@ const metadata = new ChartMetadata({
   category: t('Evolution'),
   credits: ['http://nvd3.org'],
   description: t(
-    'Visualize two different time series using the same x-axis time range. This chart is being deprecated and we recommend using the Mixed Timeseries Chart instead!',
+    'Visualize two different time series using the same x-axis . This chart is being deprecated and we recommend using the Mixed Timeseries Chart instead!',
   ),
   exampleGallery: [{ url: example }],
   name: t('Multiple Line Charts'),

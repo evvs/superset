@@ -14,7 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-x-superset-image: &superset-image apache/superset:${TAG:-latest-dev}
+x-superset-image: &superset-image
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: custom-superset:1.1.0
+
 x-superset-depends-on: &superset-depends-on
   - db
   - redis
@@ -42,7 +47,7 @@ services:
 
   superset:
     env_file: docker/.env-non-dev
-    image: *superset-image
+    <<: *superset-image
     container_name: superset_app
     command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
     user: "root"
@@ -53,7 +58,7 @@ services:
     volumes: *superset-volumes
 
   superset-init:
-    image: *superset-image
+    <<: *superset-image
     container_name: superset_init
     command: ["/app/docker/docker-init.sh"]
     env_file: docker/.env-non-dev
@@ -64,7 +69,7 @@ services:
       disable: true
 
   superset-worker:
-    image: *superset-image
+    <<: *superset-image
     container_name: superset_worker
     command: ["/app/docker/docker-bootstrap.sh", "worker"]
     env_file: docker/.env-non-dev
@@ -76,7 +81,7 @@ services:
       test: ["CMD-SHELL", "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME"]
 
   superset-worker-beat:
-    image: *superset-image
+    <<: *superset-image
     container_name: superset_worker_beat
     command: ["/app/docker/docker-bootstrap.sh", "beat"]
     env_file: docker/.env-non-dev
@@ -89,8 +94,23 @@ services:
 
 volumes:
   superset_home:
-    external: false
+    name: superset_home
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/server_home
+      o: bind
   db_home:
-    external: false
+    name: db_home
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/db_home
+      o: bind
   redis:
-    external: false
+    name: redis
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/redis
+      o: bind

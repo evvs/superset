@@ -26,6 +26,11 @@ import moment, { Moment } from 'moment';
 import { styled, t } from '@superset-ui/core';
 import { RangePicker } from 'src/components/DatePicker';
 import { FormLabel } from 'src/components/Form';
+import 'moment/locale/ru';
+import 'moment/locale/en-gb';
+import localeRu from 'antd/es/date-picker/locale/ru_RU';
+import localeEn from 'antd/es/date-picker/locale/en_GB';
+import { useSelector } from 'react-redux';
 import { BaseFilter, FilterHandler } from './Base';
 
 interface DateRangeFilterProps extends BaseFilter {
@@ -52,6 +57,13 @@ function DateRangeFilter(
     if (!value || (Array.isArray(value) && !value.length)) return null;
     return [moment(value[0]), moment(value[1])];
   }, [value]);
+
+  const locale = useSelector<any>(state => state.common.locale);
+
+  const locales = {
+    ru: localeRu,
+    en: localeEn,
+  };
 
   useImperativeHandle(ref, () => ({
     clearFilter: () => {
@@ -80,6 +92,7 @@ function DateRangeFilter(
           setValue(changeValue);
           onSubmit(changeValue);
         }}
+        locale={locales[locale as string]}
       />
     </RangeFilterContainer>
   );

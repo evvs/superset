@@ -47,6 +47,7 @@ import { ExtensionConfigs } from 'src/features/home/types';
 import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
 import type { MenuObjectProps } from 'src/types/bootstrapTypes';
 import DatabaseModal from 'src/features/databases/DatabaseModal';
+import translateToRussianDeltaHumanized from 'src/utils/translateToRussianDeltaHumanized';
 import { DatabaseObject } from 'src/features/databases/types';
 
 const extensionsRegistry = getExtensionsRegistry();
@@ -108,6 +109,9 @@ function DatabaseList({ addDangerToast, addSuccessToast }: DatabaseListProps) {
   const user = useSelector<any, UserWithPermissionsAndRoles>(
     state => state.user,
   );
+
+  const locale = useSelector<any>(state => state.common.locale);
+
   const showDatabaseModal = getUrlParam(URL_PARAMS.showDatabaseModal);
 
   const [query, setQuery] = useQueryParams({
@@ -396,7 +400,10 @@ function DatabaseList({ addDangerToast, addSuccessToast }: DatabaseListProps) {
           row: {
             original: { changed_on_delta_humanized: changedOn },
           },
-        }: any) => changedOn,
+        }: any) =>
+          locale === 'ru'
+            ? translateToRussianDeltaHumanized(changedOn)
+            : changedOn,
         Header: t('Last modified'),
         accessor: 'changed_on_delta_humanized',
         size: 'xl',

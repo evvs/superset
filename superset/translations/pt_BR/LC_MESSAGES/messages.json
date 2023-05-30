@@ -2,16 +2,15 @@
   "domain": "superset",
   "locale_data": {
     "superset": {
-      "22": ["22"],
       "": {
         "domain": "superset",
-        "plural_forms": "nplurals=2; plural=(n > 1)",
+        "plural_forms": "nplurals=2; plural=(n > 1);",
         "lang": "pt_BR"
       },
-      "\n                This filter was inherited from the dashboard's context.\n                It won't be saved when saving the chart.\n             ": [
-        "\nEste filtro foi herdado do contexto do painel.\n Não será salvo ao salvar o gráfico."
+      "This filter was inherited from the dashboard's context.\n                It won't be saved when saving the chart.": [
+        "Este filtro foi herdado do contexto do painel.\n Não será salvo ao salvar o gráfico."
       ],
-      "\n            Error: %(text)s\n           ": ["\n Erro:%(text)s\n"],
+      "Error: %(text)s": ["Erro: %(text)s"],
       "(excluded)": ["(excluído)"],
       "Set the opacity to 0 if you do not want to override the color specified in the GeoJSON": [
         "Defina opacidade a 0 se você não quer sobrepor a cor especificada no GeoJSON"
@@ -111,16 +110,16 @@
       "), and they become available in your SQL (example:": [
         "), e eles tornaram-se disponíveis no seu SQL (exemplo:"
       ],
-      "*%(name)s*\n\n%(description)s\n\n<%(url)s|Explore in Superset>\n\n%(table)s\n": [
-        "*%(name)s*\n\n%(description)s\n\n<%(url) s|Explore no Superset >\n\n%(table)s\n"
+      "*%(name)s*\n\n%(description)s\n\n<%(url)s|Explore in Superset>\n\n%(table)s": [
+        "*%(name)s*\n\n%(description)s\n\n<%(url) s|Explore no Superset >\n\n%(table)s"
       ],
-      "*%(name)s*\n\n%(description)s\n\nError: %(text)s\n": [
-        "*%(name)s*\n\n%(description)s\n\nErro: %(text)s\n"
+      "*%(name)s*\n\n%(description)s\n\nError: %(text)s": [
+        "*%(name)s*\n\n%(description)s\n\nErro: %(text)s"
       ],
       "+ %s more": ["+ %s mais"],
       ",": [","],
-      "-- Note: Unless you save your query, these tabs will NOT persist if you clear your cookies or change browsers.\n\n": [
-        "-- Nota: A menos que você salve sua consulta, estes guias NÃO irão persistir se você limpar seus cookies ou mudar de navegador.\n\n"
+      "-- Note: Unless you save your query, these tabs will NOT persist if you clear your cookies or change browsers.": [
+        "-- Nota: A menos que você salve sua consulta, estes guias NÃO irão persistir se você limpar seus cookies ou mudar de navegador."
       ],
       ".": ["."],
       "0 Selected": ["0 selecionado"],
@@ -434,7 +433,7 @@
         "A consulta do alerta retornou mais de uma coluna. %s colunas retornadas"
       ],
       "Alert query returned more than one row.": [
-        "A consulta do alerta retornou mais do que uma linha"
+        "A consulta do alerta retornou mais do que uma linha."
       ],
       "Alert query returned more than one row. %s rows returned": [
         "A consulta do alerta retornou mais de uma linha. %s linhas retornadas"
@@ -444,7 +443,7 @@
         "Alerta acionado , notificação enviada"
       ],
       "Alert validator config error.": [
-        "Erro na configuração do validador do alerta"
+        "Erro na configuração do validador do alerta."
       ],
       "Alerts": ["Alertas"],
       "Alerts & Reports": ["Alertas e Relatórios"],
@@ -764,7 +763,7 @@
         "Parâmetros de anotação são inválidos."
       ],
       "Annotations and layers": ["Anotações e camadas"],
-      "Annotations could not be deleted.": ["Anotações não foram excluídas"],
+      "Annotations could not be deleted.": ["Anotações não foram excluídas."],
       "Any additional detail to show in the certification tooltip.": [
         "Qualquer detalhe adicional a mostrar na dica de ferramenta de certificação."
       ],
@@ -1039,7 +1038,7 @@
       "Cell content": ["Conteúdo da célula"],
       "Cell limit": ["Limite de célula"],
       "Center": ["Centro"],
-      "Centroid (Longitude and Latitude): ": [
+      "Centroid (Longitude and Latitude):": [
         "Centroide (Longitude e Latitude):"
       ],
       "Certification": ["Certificação"],
@@ -1141,7 +1140,7 @@
         "Verificar se o gráfico de rosáceas deve utilizar a área do segmento em vez do raio do segmento para o cálculo das proporções"
       ],
       "Check out this chart in dashboard:": ["Veja este gráfico no painel:"],
-      "Check out this chart: ": ["Dê uma olhada neste gráfico: "],
+      "Check out this chart:": ["Dê uma olhada neste gráfico:"],
       "Check out this dashboard:": ["Confira este painel:"],
       "Check to apply filters instantly as they change instead of displaying [Apply] button": [
         "Marque para aplicar filtros instantaneamente à medida que são alterados, em vez de apresentar o botão [Aplicar]"
@@ -1310,7 +1309,7 @@
       ],
       "Column name [%s] is duplicated": ["Nome da coluna [%s] está duplicado"],
       "Column referenced by aggregate is undefined: %(column)s": [
-        "coluna referenciado pelo agregado é indefinido: %(column)s"
+        "Coluna referenciado pelo agregado é indefinido: %(column)s"
       ],
       "Column select": ["Seleção de coluna"],
       "Column to use as the row labels of the dataframe. Leave empty if no index column": [
@@ -1438,8 +1437,7 @@
       "Control labeled": ["Controle rotulado"],
       "Contribution Mode": ["Modo de contribuição"],
       "Control": ["Controle"],
-      "Control labeled ": ["Controle rotulado "],
-      "Controls labeled ": ["Controles rotulados "],
+      "Controls labeled": ["Controles rotulados"],
       "Coordinates": ["Coordenadas"],
       "Copied to clipboard!": ["Copiado para a área de transferência!"],
       "Copy": ["Copiar"],
@@ -1674,11 +1672,8 @@
       "Database does not support subqueries": [
         "O banco de dados não é compatível com subconsultas"
       ],
-      "Database driver for importing maybe not installed. Visit the Superset documentation page for installation instructions: ": [
-        "O driver do banco de dados para importação talvez não esteja instalado. Visite a página de documentação do Superset para obter instruções de instalação:"
-      ],
       "Database driver for importing maybe not installed. Visit the Superset documentation page for installation instructions:": [
-        "O driver para importação do banco de dados pode não estar instalado. Visite a página de documentação do Superset para obter instruções de instalação:"
+        "O driver do banco de dados para importação talvez não esteja instalado. Visite a página de documentação do Superset para obter instruções de instalação:"
       ],
       "Database is offline.": ["O banco de dados está off-line."],
       "Database error": ["Erro no banco de dados"],
@@ -1691,7 +1686,7 @@
       ],
       "Database not found.": ["Banco de dados não encontrado."],
       "Database parameters are invalid.": [
-        "Os parâmetros do banco de dados são inválidos"
+        "Os parâmetros do banco de dados são inválidos."
       ],
       "Database not found: %(id)s": ["Banco de dados não encontrado: %(id)s"],
       "Database passwords": ["Senhas de banco de dados"],
@@ -1735,7 +1730,7 @@
       ],
       "Dataset name": ["Nome do conjunto de dados"],
       "Dataset parameters are invalid.": [
-        "Os parâmetros para o conjunto de dados são inválidos"
+        "Os parâmetros para o conjunto de dados são inválidos."
       ],
       "Dataset schema is invalid, caused by: %(error)s": [
         "Esquema do conjunto de dados inválido, causado por: %(error)s"
@@ -1744,14 +1739,11 @@
         "Não foi possível eliminar o(s) conjunto(s) de dados em bloco."
       ],
       "Datasets": ["Conjuntos de dados"],
-      "Datasets can be created from database tables or SQL queries. Select a database table to the left or ": [
-        "Os conjuntos de dados podem ser criados a partir de tabelas de banco de dados ou consultas SQL. Selecione uma tabela de banco de dados à esquerda ou "
+      "Datasets can be created from database tables or SQL queries. Select a database table to the left or": [
+        "Os conjuntos de dados podem ser criados a partir de tabelas de banco de dados ou consultas SQL. Selecione uma tabela de banco de dados à esquerda ou"
       ],
       "Datasets do not contain a temporal column": [
         "Os conjuntos de dados não contêm uma coluna temporal"
-      ],
-      "Datasets can be created from database tables or SQL queries. Select a database table to the left or": [
-        "Os conjuntos de dados podem ser criados a partir de tabelas de banco de dados ou de consultas SQL. Selecione uma tabela do banco de dados à esquerda ou"
       ],
       "Datasource & Chart Type": ["Fonte de dados e tipo de gráfico"],
       "Datasource does not exist": ["A fonte de dados não existe"],
@@ -2027,8 +2019,8 @@
       "Duration (in seconds) of the metadata caching timeout for schemas of this database. If left unset, the cache never expires.": [
         "Duração (em segundos) do tempo limite do cache de metadados para esquemas desse banco de dados. Se não for definido, o cache nunca expira."
       ],
-      "Duration (in seconds) of the metadata caching timeout for tables of this database. If left unset, the cache never expires. ": [
-        "Duração (em segundos) do tempo limite do cache de metadados para tabelas desse banco de dados. Se não for definido, o cache nunca expira. "
+      "Duration (in seconds) of the metadata caching timeout for tables of this database. If left unset, the cache never expires.": [
+        "Duração (em segundos) do tempo limite do cache de metadados para tabelas desse banco de dados. Se não for definido, o cache nunca expira."
       ],
       "Duration (in seconds) of the caching timeout for charts of this database. A timeout of 0 indicates that the cache never expires. Note this defaults to the global timeout if undefined.": [
         "Duração (em segundos) do tempo limite de armazenamento em cache para os gráficos desse banco de dados. Um tempo limite de 0 indica que a cache nunca expira. Observe que o padrão é o tempo limite global se não for definido."
@@ -2070,7 +2062,6 @@
       "Edit Column": ["Editar Coluna"],
       "Edit Dashboard": ["Editar Painel"],
       "Edit Database": ["Editar Banco de Dados"],
-      "Edit Dataset ": ["Editar Conjunto de dados"],
       "Edit Dataset": ["Editar Conjunto de dados"],
       "Edit Log": ["Editar log"],
       "Edit Metric": ["Editar Métrica"],
@@ -2156,7 +2147,7 @@
         "Encontrou entrada espacial NULL inválida,                                     por favor considere a possibilidade de a filtrar"
       ],
       "End": ["Fim"],
-      "End (Longitude, Latitude): ": ["Fim (Longitude, Latitude): "],
+      "End (Longitude, Latitude):": ["Fim (Longitude, Latitude):"],
       "End Longitude & Latitude": ["Longitude e latitude finais"],
       "End Time": ["Hora do fim"],
       "End angle": ["Ângulo final"],
@@ -2447,7 +2438,7 @@
       "Forecast periods": ["Períodos de previsão"],
       "Foreign key": ["Chave estrangeira"],
       "Form data not found in cache, reverting to chart metadata.": [
-        "Os dados do formulário não foram encontrados na cache, revertendo para os metadados do gráfico"
+        "Os dados do formulário não foram encontrados na cache, revertendo para os metadados do gráfico."
       ],
       "Form data not found in cache, reverting to dataset metadata.": [
         "Os dados do formulário não foram encontrados na cache, revertendo para os metadados do conjunto de dados."
@@ -2611,7 +2602,7 @@
       ],
       "Import charts": ["Importar gráficos"],
       "Import dashboard failed for an unknown reason": [
-        "A importação do painel falhou por um motivo desconhecido "
+        "A importação do painel falhou por um motivo desconhecido"
       ],
       "Import dashboards": ["Importar painéis"],
       "Import database from file": ["Importar banco de dados de um arquivo"],
@@ -2644,7 +2635,7 @@
       "Inner Radius": ["Raio interior"],
       "Inner radius of donut hole": ["Raio interior do buraco de rosquinha"],
       "Input field supports custom rotation. e.g. 30 for 30°": [
-        "O campo de entrada suporta uma rotação personalizada, por exemplo, 30 para 30°."
+        "O campo de entrada suporta uma rotação personalizada, por exemplo, 30 para 30°"
       ],
       "Instant filtering": ["Filtragem instantânea"],
       "Intensity": ["Intensidade"],
@@ -2699,13 +2690,13 @@
         "Função numpy inválida: %(operator)s"
       ],
       "Invalid options for %(rolling_type)s: %(options)s": [
-        "opções inválidas para %(rolling_type)s: %(opções)s"
+        "Opções inválidas para %(rolling_type)s: %(opções)s"
       ],
       "Invalid permalink key": ["Chave de permalink inválida"],
       "Invalid result type: %(result_type)s": [
         "Tipo de resultado inválido: %(result_type)s"
       ],
-      "Invalid rolling_type: %(type)s": ["inválido rolling_type: %(type)s"],
+      "Invalid rolling_type: %(type)s": ["Inválido rolling_type: %(type)s"],
       "Invalid spatial point encountered: %s": [
         "Encontrado um ponto espacial inválido: %s"
       ],
@@ -2714,13 +2705,13 @@
       "Inverse selection": ["Seleção inversa"],
       "Invert current page": ["Inverter a página atual"],
       "Is certified": ["É certificado"],
-      "Is dimension": ["é dimensão"],
-      "Is false": ["é falso"],
-      "Is favorite": ["é favorito"],
-      "Is filterable": ["é filtrável"],
-      "Is tagged": ["é marcado"],
+      "Is dimension": ["É dimensão"],
+      "Is false": ["É falso"],
+      "Is favorite": ["É favorito"],
+      "Is filterable": ["É filtrável"],
+      "Is tagged": ["É marcado"],
       "Is temporal": ["É temporal"],
-      "Is true": ["é verdadeiro"],
+      "Is true": ["É verdadeiro"],
       "Is not null": ["Não é nulo"],
       "Is null": ["É nulo"],
       "Issue 1001 - The database is under an unusual load.": [
@@ -2740,7 +2731,7 @@
       "JUL": ["JUL"],
       "JUN": ["JUN"],
       "January": ["Janeiro"],
-      "JavaScript data interceptor": ["interceptador de dados JavaScript"],
+      "JavaScript data interceptor": ["Interceptador de dados JavaScript"],
       "JavaScript onClick href": ["JavaScript onClick href"],
       "JavaScript tooltip generator": [
         "Gerador de dicas de ferramentas JavaScript"
@@ -3199,7 +3190,7 @@
       "No filters are currently added to this dashboard.": [
         "Nenhum filtro foi adicionado a esse painel no momento."
       ],
-      "No filter is selected.": ["Nenhum filtro selecionado"],
+      "No filter is selected.": ["Nenhum filtro selecionado."],
       "No form settings were maintained": [
         "Nenhuma configuração de formulário foi mantida"
       ],
@@ -3417,7 +3408,9 @@
       "Optional d3 number format string": [
         "String opcional de formato de número d3"
       ],
-      "Optional name of the data column.": ["Nome opcional da coluna de dados"],
+      "Optional name of the data column.": [
+        "Nome opcional da coluna de dados."
+      ],
       "Optional warning about use of this metric": [
         "Aviso opcional sobre o uso dessa métrica"
       ],
@@ -3475,13 +3468,12 @@
         "Os proprietários são uma lista de usuários que podem alterar o painel. Pesquisável por nome ou nome de usuário."
       ],
       "Page length": ["Comprimento da página"],
-      "Paired t-test Table": [" Tabela teste-t pareado"],
+      "Paired t-test Table": ["Tabela teste-t pareado"],
       "Pandas resample method": ["Métodos de reamostragem do Pandas"],
       "Pandas resample rule": ["Regra de reamostragem do Pandas"],
       "Parallel Coordinates": ["Coordenadas paralelas"],
       "Parameter error": ["Erro de parâmetro"],
       "Parameters": ["Parâmetros"],
-      "Parameters ": ["Parâmetros "],
       "Parameters related to the view and perspective on the map": [
         "Parâmetros relacionados com a visão e a perspectiva no mapa"
       ],
@@ -3826,7 +3818,7 @@
         "As colunas referenciadas não estão disponíveis no DataFrame."
       ],
       "Refetch results": ["Recuperar resultados"],
-      "refresh": ["Atualizar"],
+      "refresh": ["atualizar"],
       "Refresh": ["Atualizar"],
       "REFRESH": ["ATUALIZAR"],
       "Refresh dashboard": ["Atualizar Painel"],
@@ -3862,13 +3854,13 @@
       "Rendering": ["Renderização"],
       "Replace": ["Substituir"],
       "Report Schedule could not be created.": [
-        "não foi possível criar um agendamento do relatório."
+        "Não foi possível criar um agendamento do relatório."
       ],
       "Report Schedule could not be deleted.": [
         "O agendamento do relatório pode não ser deletado."
       ],
       "Report Schedule could not be updated.": [
-        "o agendamento do relatório pode não ser atualizado."
+        "O agendamento do relatório pode não ser atualizado."
       ],
       "Report Schedule delete failed.": [
         "Falha na exclusão do agendamento do relatório."
@@ -3892,7 +3884,7 @@
         "Os parâmetros do agendamento de relatório são inválidos."
       ],
       "Report Schedule reached a working timeout.": [
-        "o agendamento do relatório atingiu o tempo limite de trabalho."
+        "O agendamento do relatório atingiu o tempo limite de trabalho."
       ],
       "Report Schedule state not found": [
         "Estado do agendamento do relatório não encontrado"
@@ -3934,7 +3926,7 @@
         "Os valores de controle necessários foram eliminados"
       ],
       "Resample": ["Reamostragem"],
-      "Resample method should in ": ["O método de reamostragem deve estar em "],
+      "Resample method should in": ["O método de reamostragem deve estar em"],
       "Resample operation requires DatetimeIndex": [
         "A operação de reamostragem requer DatetimeIndex"
       ],
@@ -3947,7 +3939,7 @@
       ],
       "Results %s": ["Resultados %s"],
       "Reverse Lat & Long": ["Lat. e Long. invertidos"],
-      "Reverse lat/long ": ["Lat/long invertido "],
+      "Reverse lat/long": ["Lat/long invertido"],
       "Results": ["Resultados"],
       "Results backend is not configured.": [
         "O backend de resultados não está configurado."
@@ -3956,7 +3948,6 @@
         "O backend de resultados necessário para as consultas assíncronas não está configurado."
       ],
       "Return to specific datetime.": ["Retornar para data e hora específica."],
-      "Reverse lat/long": ["Inverter lat/long"],
       "Right": ["Direito"],
       "Right Axis Format": ["Formato do eixo direito"],
       "Right Axis Metric": ["Métrica do eixo direito"],
@@ -4151,13 +4142,10 @@
         "Esquemas permitidos para upload de arquivos"
       ],
       "Scoping": ["Escopo"],
-      "Scroll down to the bottom to enable overwriting changes. ": [
-        "Role para baixo até a parte inferior para permitir a substituição de alterações. "
+      "Scroll down to the bottom to enable overwriting changes.": [
+        "Role para baixo até a parte inferior para permitir a substituição de alterações."
       ],
       "Scroll": ["Rolagem"],
-      "Scroll down to the bottom to enable overwriting changes.": [
-        "Rolar até o fundo para habilitar substituição de alterações."
-      ],
       "Search": ["Pesquisar"],
       "Search all charts": ["Pesquisar todos os gráficos"],
       "Search box": ["Caixa de pesquisa"],
@@ -4230,15 +4218,12 @@
         "Selecione o banco de dados ou o tipo para pesquisar bancos de dados"
       ],
       "Select database table": ["Selecione a tabela do banco de dados"],
-      "Select databases require additional fields to be completed in the Advanced tab to successfully connect the database. Learn what requirements your databases has ": [
-        "Alguns bancos de dados exigem o preenchimento de campos adicionais na guia Avançado para que a conexão com o banco de dados seja bem-sucedida. Saiba quais são os requisitos de seus bancos de dados "
+      "Select databases require additional fields to be completed in the Advanced tab to successfully connect the database. Learn what requirements your databases has": [
+        "Alguns bancos de dados exigem o preenchimento de campos adicionais na guia Avançado para que a conexão com o banco de dados seja bem-sucedida. Saiba quais são os requisitos de seus bancos de dados"
       ],
       "Select dataset source": ["Selecione a fonte do conjunto de dados"],
       "Select file": ["Selecionar arquivo"],
       "Select filter": ["Selecionar filtro"],
-      "Select databases require additional fields to be completed in the Advanced tab to successfully connect the database. Learn what requirements your databases has": [
-        "Alguns bancos de dados exigem o preenchimento de campos adicionais na aba Avançados para que a conexão com o banco de dados seja bem sucedida. Saiba quais são os requisitos dos seus bancos de dados"
-      ],
       "Select filter plugin using AntD": [
         "Selecione plug-in de filtro usando AntD"
       ],
@@ -4378,7 +4363,7 @@
       "Show less columns": ["Mostrar menos colunas"],
       "Show less...": ["Mostrar menos..."],
       "Show only my charts": ["Mostrar apenas meu gráficos"],
-      "Show password.": ["Mostrar senha"],
+      "Show password.": ["Mostrar senha."],
       "Show percentage": ["Mostrar porcentagem"],
       "Show progress": ["Mostrar progresso"],
       "Show pointer": ["Mostrar ponteiro"],
@@ -4458,9 +4443,6 @@
       ],
       "Sorry there was an error fetching saved charts:": [
         "Desculpe, houve um erro ao procurar gráficos salvos:"
-      ],
-      "Sorry there was an error fetching saved charts: ": [
-        "Desculpe, houve um erro ao buscar os gráficos salvos: "
       ],
       "Sorry, An error occurred": ["Desculpe, ocorreu um erro"],
       "Sorry, an error occurred": ["Desculpe, ocorreu um erro"],
@@ -4552,7 +4534,7 @@
       "Stacked style": ["Estilos empilhados"],
       "Standard time series": ["Série temporal padrão"],
       "Start": ["Iniciar"],
-      "Start (Longitude, Latitude): ": ["Início (Longitude, Latitude): "],
+      "Start (Longitude, Latitude):": ["Início (Longitude, Latitude):"],
       "Start Longitude & Latitude": ["Longitude e latitude iniciais"],
       "Start Review": ["Iniciar revisão"],
       "Start angle": ["Ângulo inicial"],
@@ -4839,9 +4821,6 @@
       "The engine_params object gets unpacked into the sqlalchemy.create_engine call.": [
         "O objeto engine_params é descompactado na chamada sqlalchemy.create_engine."
       ],
-      "The following entries in `series_columns` are missing in `columns`: %(columns)s. ": [
-        "As seguintes entradas em `series_columns` estão faltando em `columns`: %(columns)s. "
-      ],
       "The function to use when aggregating points into groups": [
         "A função para usar quando agregar pontos em grupos"
       ],
@@ -4957,9 +4936,6 @@
       ],
       "The passwords for the databases below are needed in order to import them. Please note that the \"Secure Extra\" and \"Certificate\" sections of the database configuration are not present in explore files and should be added manually after the import if they are needed.": [
         "As senhas dos bancos de dados abaixo são necessárias para importá-los. Observe que as seções \"Secure Extra\" e \"Certificate\" da configuração do banco de dados não estão presentes nos arquivos de exploração e devem ser adicionadas manualmente após a importação, caso sejam necessárias."
-      ],
-      "The pattern of timestamp format. For strings use ": [
-        "O padrão do formato de registro de data e hora. Para strings, use "
       ],
       "The periodicity over which to pivot time. Users can provide\n            \"Pandas\" offset alias.\n            Click on the info bubble for more details on accepted \"freq\" expressions.": [
         "A periodicidade sobre a qual o tempo será dinamizado. Os usuários podem fornecer um alias de deslocamento \"Pandas\".\n Clique no balão de informações para obter mais detalhes sobre as expressões \"freq\" aceitas."
@@ -5156,9 +5132,6 @@
       "There was an issue deleting the selected charts: %s": [
         "Houve um problema ao excluir os gráficos selecionados: %s"
       ],
-      "There was an issue deleting the selected dashboards: ": [
-        "Houve um problema ao excluir os painéis selecionados: "
-      ],
       "There was an issue deleting the selected dashboards:": [
         "Houve um problema ao excluir os painéis selecionados:"
       ],
@@ -5255,9 +5228,6 @@
       ],
       "This color scheme is being overridden by custom label colors.\n    Check the JSON metadata in the Advanced settings": [
         "Esse esquema de cores está sendo substituído por cores de rótulos personalizados.\n Verifique os metadados JSON nas configurações avançadas"
-      ],
-      "This chart type is not supported when using an unsaved query as a chart source. ": [
-        "Não há suporte para esse tipo de gráfico quando se usa uma consulta não salva como fonte de gráfico. "
       ],
       "This column might be incompatible with current dataset": [
         "Essa coluna pode ser incompatível com o conjunto de dados atual"
@@ -5365,8 +5335,8 @@
       "This table already has a dataset": [
         "Essa tabela já tem um conjunto de dados"
       ],
-      "This table already has a dataset associated with it. You can only associate one dataset with a table.\n": [
-        "Essa tabela já tem um conjunto de dados associado a ela. Você só pode associar um conjunto de dados a uma tabela.\n"
+      "This table already has a dataset associated with it. You can only associate one dataset with a table.": [
+        "Essa tabela já tem um conjunto de dados associado a ela. Você só pode associar um conjunto de dados a uma tabela."
       ],
       "This value should be greater than the left target value": [
         "Esse valor deve ser maior do que o valor-alvo esquerdo"
@@ -5396,7 +5366,7 @@
       "Time Column": ["Coluna do tempo"],
       "Time Comparison": ["Comparação de tempo"],
       "Time Format": ["Formato de hora"],
-      "Time Grain": ["Granularidade"],
+      "Time Grain": ["Grão de tempo"],
       "Time Granularity": ["Granularidade de tempo"],
       "Time Lag": ["Atraso de tempo"],
       "Time Range": ["Intervalo de tempo"],
@@ -5644,7 +5614,7 @@
       "Unexpected error occurred, please check your logs for details": [
         "Ocorreu um erro inesperado, verifique os registros(logs) para obter detalhes"
       ],
-      "Unexpected error: ": ["Erro inesperado: "],
+      "Unexpected error:": ["Erro inesperado:"],
       "Unexpected time range: %s": ["Intervalo de tempo inesperado: %s"],
       "Unknown": ["Desconhecido"],
       "Unknown MySQL server host \"%(hostname)s\".": [
@@ -5709,7 +5679,7 @@
       "Use Area Proportions": ["Proporções de área de uso"],
       "Use Columns": ["Usar colunas"],
       "Use \"%(menuName)s\"menu instead.": [
-        "Em vez disso, use o menu \"%(menuName)s\""
+        "Em vez disso, use o menu \"%(menuName)s\"."
       ],
       "Use a log scale": ["Use uma escala logarítmica"],
       "Use a log scale for the X-axis": [
@@ -5906,7 +5876,7 @@
         "Atenção! Alterar o conjunto de dados pode quebrar o gráfico se os metadados não existirem."
       ],
       "We are unable to connect to your database. Click \"See more\"for database-provided information that may help troubleshoot the issue.": [
-        "Não conseguimos nos conectar ao seu banco de dados. Clique em \"See more \" para obter informações fornecidas pelo banco de dados que podem ajudar a solucionar o problema"
+        "Não conseguimos nos conectar ao seu banco de dados. Clique em \"See more \" para obter informações fornecidas pelo banco de dados que podem ajudar a solucionar o problema."
       ],
       "We can't seem to resolve the column \"%(column_name)s\"at line %(location)s.": [
         "Parece que não conseguimos resolver a coluna \"%(column_name)s\"na linha %(location)s."
@@ -6143,7 +6113,7 @@
         "Escreve o índice do dataframe como uma coluna."
       ],
       "Write dataframe index as a column": [
-        "Escreve o índice do dataframe como uma coluna."
+        "Escreve o índice do dataframe como uma coluna"
       ],
       "X AXIS TITLE BOTTOM MARGIN": ["MARGEM INFERIOR DO TÍTULO DO EIXO X"],
       "X Axis": ["Eixo X"],
@@ -6403,9 +6373,7 @@
       "basis": ["base"],
       "background": ["fundo"],
       "below (example:": ["abaixo (exemplo:"],
-      "between {down} and {up} {name}": [
-        "entre {para baixo} e {para cima} {nome}"
-      ],
+      "between {down} and {up} {name}": ["entre {down} e {up} {name}"],
       "bfill": ["bfill"],
       "bolt": ["parafuso"],
       "boolean type icon": ["ícone do tipo booleano"],
@@ -6423,7 +6391,7 @@
       "cardinal": ["cardeal"],
       "change": ["mudança"],
       "charts": ["gráficos"],
-      "clear all filters": ["Limpar todos os filtros"],
+      "clear all filters": ["limpar todos os filtros"],
       "count": ["contagem"],
       "create": ["criar"],
       "create a new chart": ["criar um novo gráfico"],
@@ -6438,12 +6406,12 @@
       "deck.gl Path": ["deck.gl Path"],
       "deck.gl Polygon": ["deck.gl Polígono"],
       "deck.gl Scatterplot": ["deck.gl Gráfico de dispersão"],
-      "deck.gl Screen Grid": ["Deck.gl Grade de tela"],
-      "deck.gl charts": ["Gráficos do deck.gl"],
+      "deck.gl Screen Grid": ["deck.gl Grade de tela"],
+      "deck.gl charts": ["gráficos do deck.gl"],
       "default": ["padrão"],
       "deviation": ["desvio"],
       "draft": ["rascunho"],
-      "e.g., a \"user id\" column": ["Por exemplo, uma coluna \"user id\"."],
+      "e.g., a \"user id\" column": ["por exemplo, uma coluna \"user id\""],
       "edit mode": ["modo de edição"],
       "entries": ["entradas"],
       "error_message": ["mensagem de erro"],
@@ -6474,14 +6442,14 @@
         "nenhum validador SQL está configurado"
       ],
       "no SQL validator is configured for {}": [
-        "Nenhum validador SQL está configurado para {}"
+        "nenhum validador SQL está configurado para {}"
       ],
       "or": ["ou"],
       "pending": ["pendente"],
       "orderby column must be populated": [
-        "A coluna orderby deve ser preenchida"
+        "a coluna orderby deve ser preenchida"
       ],
-      "permalink state not found": ["Estado do permalink não encontrado"],
+      "permalink state not found": ["estado do permalink não encontrado"],
       "published": ["publicado"],
       "quarter": ["trimestre"],
       "queries": ["consultas"],
@@ -6509,7 +6477,7 @@
       "value ascending": ["valor crescente"],
       "value descending": ["valor decrescente"],
       "variance": ["variação"],
-      "view instructions": ["Exibir instruções"],
+      "view instructions": ["exibir instruções"],
       "viz type": ["tipo de visualização"],
       "choose WHERE or HAVING...": ["escolha WHERE ou HAVING..."],
       "click here": ["clique aqui"],
@@ -6583,7 +6551,7 @@
       "less than {min} {name}": ["menos que {min} {name}"],
       "log": ["log"],
       "lower percentile must be greater than 0 and less than 100. Must be lower than upper percentile.": [
-        "O percentil inferior deve ser maior que 0 e menor que 100. Deve ser menor que o percentil superior."
+        "o percentil inferior deve ser maior que 0 e menor que 100. Deve ser menor que o percentil superior."
       ],
       "mean": ["média"],
       "median": ["mediana"],
@@ -6600,7 +6568,7 @@
         "ou use os existentes no painel à direita"
       ],
       "overall": ["geral"],
-      "p-value precision": ["Precisão do valor-p"],
+      "p-value precision": ["precisão do valor-p"],
       "p1": ["p1"],
       "p5": ["p5"],
       "p95": ["p95"],
@@ -6610,7 +6578,7 @@
       "page_size.show": ["page_ size.show"],
       "percentile (exclusive)": ["percentil (exclusivo)"],
       "percentiles must be a list or tuple with two numeric values, of which the first is lower than the second value": [
-        "Os percentis devem ser uma lista ou tupla com dois valores numéricos, dos quais o primeiro é menor que o segundo valor"
+        "os percentis devem ser uma lista ou tupla com dois valores numéricos, dos quais o primeiro é menor que o segundo valor"
       ],
       "pixelated (Sharp)": ["pixelado (nítido)"],
       "previous calendar month": ["mês anterior do calendário"],
@@ -6634,7 +6602,7 @@
       "temporal type icon": ["ícone de tipo temporal"],
       "textarea": ["área de texto"],
       "upper percentile must be greater than 0 and less than 100. Must be higher than lower percentile.": [
-        "O percentil superior deve ser maior que 0 e menor que 100. Deve ser maior que o percentil inferior."
+        "o percentil superior deve ser maior que 0 e menor que 100. Deve ser maior que o percentil inferior."
       ],
       "var": ["var"],
       "virtual": ["virtual"],

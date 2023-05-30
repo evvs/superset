@@ -119,8 +119,21 @@ const createFetchResourceMethod =
       data.unshift(loggedUser);
     }
 
+    const dataTranslated = data.map(data => {
+      const mapping = new Map([
+        ['success', 'успех'],
+        ['failed', 'ошибка'],
+        ['running', 'выполняется'],
+      ]);
+
+      return {
+        label: mapping.get(data.label) ?? data.label,
+        value: data.value,
+      };
+    });
+
     return {
-      data,
+      data: dataTranslated,
       totalCount: json?.count,
     };
   };

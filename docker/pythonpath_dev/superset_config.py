@@ -112,6 +112,24 @@ SQLLAB_CTAS_NO_LIMIT = True
 # Optionally import superset_config_docker.py (which will have been included on
 # the PYTHONPATH) in order to allow for local settings to be overridden
 #
+
+# smtp server configuration
+EMAIL_NOTIFICATIONS = True  # all the emails are sent using dryrun
+SMTP_HOST = "" # test.test.ru
+SMTP_STARTTLS = True
+SMTP_SSL = False
+SMTP_USER = "" # notifications
+SMTP_PORT = 587
+SMTP_PASSWORD = "" # SET PASSWORD FOR SMTP
+SMTP_MAIL_FROM = "" # test@ya.ru
+
+# only ru language untill fix
+BABEL_DEFAULT_LOCALE = "ru"
+LANGUAGES = {
+    'ru': {'flag': 'ru', 'name': 'Russian'},
+}
+
+
 try:
     import superset_config_docker
     from superset_config_docker import *  # noqa

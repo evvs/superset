@@ -50,6 +50,8 @@ const d3Formatted: [string, string][] = [
   '$,.2f',
 ].map(fmt => [fmt, `${fmt} (${getNumberFormatter(fmt).preview()})`]);
 
+d3Formatted.splice(1, 0, ['my_format', 'd (12345.432 => 12 345)']); // add custom format
+
 // input choices & options
 export const D3_FORMAT_OPTIONS: [string, string][] = [
   [NumberFormats.SMART_NUMBER, t('Adaptive formatting')],

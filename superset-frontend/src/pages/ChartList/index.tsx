@@ -71,6 +71,8 @@ import { GenericLink } from 'src/components/GenericLink/GenericLink';
 import getBootstrapData from 'src/utils/getBootstrapData';
 import Owner from 'src/types/Owner';
 import { loadTags } from 'src/components/Tags/utils';
+import { useSelector } from 'react-redux';
+import translateToRussianDeltaHumanized from 'src/utils/translateToRussianDeltaHumanized';
 import ChartCard from 'src/features/charts/ChartCard';
 
 const FlexRowContainer = styled.div`
@@ -208,6 +210,8 @@ function ChartList(props: ChartListProps) {
     sshTunnelPrivateKeyPasswordFields,
     setSSHTunnelPrivateKeyPasswordFields,
   ] = useState<string[]>([]);
+
+  const locale = useSelector<any>(state => state.common.locale);
 
   // TODO: Fix usage of localStorage keying on the user id
   const userSettings = dangerouslyGetItemDoNotUse(userId?.toString(), null) as {
@@ -437,11 +441,17 @@ function ChartList(props: ChartListProps) {
           row: {
             original: { last_saved_at: lastSavedAt },
           },
-        }: any) => (
-          <span className="no-wrap">
-            {lastSavedAt ? moment.utc(lastSavedAt).fromNow() : null}
-          </span>
-        ),
+        }: any) => {
+          const lastSaved = lastSavedAt
+            ? moment.utc(lastSavedAt).fromNow()
+            : null;
+
+          const translation =
+            locale === 'ru'
+              ? translateToRussianDeltaHumanized(lastSaved ?? '')
+              : lastSaved;
+          return <span className="no-wrap">{translation}</span>;
+        },
         Header: t('Last modified'),
         accessor: 'last_saved_at',
         size: 'xl',

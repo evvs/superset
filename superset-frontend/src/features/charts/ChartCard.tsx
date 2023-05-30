@@ -30,6 +30,8 @@ import { AntdDropdown } from 'src/components';
 import { Menu } from 'src/components/Menu';
 import FaveStar from 'src/components/FaveStar';
 import FacePile from 'src/components/FacePile';
+import { useSelector } from 'react-redux';
+import translateToRussianDeltaHumanized from 'src/utils/translateToRussianDeltaHumanized';
 import { handleChartDelete, CardStyles } from 'src/views/CRUD/utils';
 
 interface ChartCardProps {
@@ -71,6 +73,14 @@ export default function ChartCard({
   const canExport =
     hasPerm('can_export') && isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT);
   const theme = useTheme();
+
+  const locale = useSelector<any>(state => state.common.locale);
+  const description = t(
+    'Modified %s',
+    locale === 'ru'
+      ? translateToRussianDeltaHumanized(chart.changed_on_delta_humanized ?? '')
+      : chart.changed_on_delta_humanized,
+  );
 
   const menu = (
     <Menu>
@@ -155,7 +165,7 @@ export default function ChartCard({
         url={bulkSelectEnabled ? undefined : chart.url}
         imgURL={chart.thumbnail_url || ''}
         imgFallbackURL="/static/assets/images/chart-card-fallback.svg"
-        description={t('Modified %s', chart.changed_on_delta_humanized)}
+        description={description}
         coverLeft={<FacePile users={chart.owners || []} />}
         coverRight={
           <Label type="secondary">{chart.datasource_name_text}</Label>

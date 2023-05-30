@@ -24,8 +24,27 @@ import {
   getTimeFormatterRegistry,
   smartDateFormatter,
   smartDateVerboseFormatter,
+  NumberFormatter,
 } from '@superset-ui/core';
 import { FormatLocaleDefinition } from 'd3-format';
+
+import * as d3 from 'd3-format';
+
+const myLocale = d3.formatLocale({
+  decimal: '.',
+  thousands: ' ',
+  grouping: [3],
+  currency: ['$', ''],
+});
+const formatFunc = myLocale.format(',');
+
+const myFormatter = new NumberFormatter({
+  id: 'my_format',
+  label: 'My Format',
+  description: 'Format numbers with spaces as thousands separators',
+  formatFunc: (value: number) => formatFunc(Math.round(value)),
+  isInvalid: false,
+});
 
 export default function setupFormatters(
   d3Format: Partial<FormatLocaleDefinition>,
@@ -70,7 +89,8 @@ export default function setupFormatters(
     .registerValue(
       'DURATION_SUB',
       createDurationFormatter({ formatSubMilliseconds: true }),
-    );
+    )
+    .registerValue('my_format', myFormatter); // add custom format
 
   getTimeFormatterRegistry()
     .registerValue('smart_date', smartDateFormatter)

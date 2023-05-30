@@ -1286,7 +1286,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
                     <Select
                       ariaLabel={TRANSLATIONS.CONDITION_TEXT}
                       onChange={onConditionChange}
-                      placeholder="Condition"
+                      placeholder={t('Condition')}
                       value={
                         currentAlert?.validator_config_json?.op || undefined
                       }

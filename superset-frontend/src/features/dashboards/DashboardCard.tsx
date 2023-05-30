@@ -29,6 +29,8 @@ import Label from 'src/components/Label';
 import FacePile from 'src/components/FacePile';
 import FaveStar from 'src/components/FaveStar';
 import { Dashboard } from 'src/views/CRUD/types';
+import translateToRussianDeltaHumanized from 'src/utils/translateToRussianDeltaHumanized';
+import { useSelector } from 'react-redux';
 
 interface DashboardCardProps {
   isChart?: boolean;
@@ -63,6 +65,7 @@ function DashboardCard({
   const canExport = hasPerm('can_export');
 
   const theme = useTheme();
+  const locale = useSelector<any>(state => state.common.locale);
   const menu = (
     <Menu>
       {canEdit && openDashboardEditModal && (
@@ -106,6 +109,14 @@ function DashboardCard({
       )}
     </Menu>
   );
+  const description = t(
+    'Modified %s',
+    locale === 'ru'
+      ? translateToRussianDeltaHumanized(
+          dashboard.changed_on_delta_humanized ?? '',
+        )
+      : dashboard.changed_on_delta_humanized,
+  );
   return (
     <CardStyles
       onClick={() => {
@@ -131,7 +142,7 @@ function DashboardCard({
         linkComponent={Link}
         imgURL={dashboard.thumbnail_url}
         imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
-        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
+        description={description}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
           <ListViewCard.Actions
