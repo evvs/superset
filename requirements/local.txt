@@ -13,3 +13,5 @@
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+pymssql==2.2.7
+clickhouse-connect==0.5.25

@@ -333,7 +333,3 @@ zipp==3.15.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
-
-pymssql==2.2.7
-clickhouse-driver==0.2.6
-clickhouse-sqlalchemy==0.2.4
