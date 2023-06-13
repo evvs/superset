@@ -79,6 +79,8 @@ def df_to_escaped_csv(df: pd.DataFrame, **kwargs: Any) -> Any:
 
     return df.to_csv(**kwargs)
 
+def df_to_csv(df: pd.DataFrame, **kwargs: Any) -> bytes: # manzana_custom
+    return bytes(df.to_csv(**kwargs), "utf-8") # manzana_custom
 
 def get_chart_csv_data(
     chart_url: str, auth_cookies: Optional[Dict[str, str]] = None

@@ -19,11 +19,25 @@ from typing import Any
 
 import pandas as pd
 
-
-def df_to_excel(df: pd.DataFrame, **kwargs: Any) -> Any:
+def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, **kwargs: Any) -> bytes:
     output = io.BytesIO()
-    # pylint: disable=abstract-class-instantiated
+
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, **kwargs)
+        df.to_excel(writer, sheet_name=sheet_name, **kwargs)
+
+        workbook  = writer.book
+        header_format = workbook.add_format({'bg_color': '#96bfff', 'bold': True}) # manzana custom
+        worksheet = writer.sheets[sheet_name] # manzana custom
+
+        for col_num, value in enumerate(df.columns.values): # manzana custom
+            if isinstance(value, tuple): # manzana custom
+                value = value[0] # manzana custom
+            
+            worksheet.write(0, col_num, value, header_format) # manzana custom
+        
+        if from_report: # manzana custom
+            worksheet.write(0, len(df.columns.values), None, workbook.add_format()) # manzana custom
+
+        worksheet.autofit()  # manzana custom
 
     return output.getvalue()

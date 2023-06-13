@@ -76,6 +76,9 @@ from superset.utils.csv import get_chart_csv_data, get_chart_dataframe
 from superset.utils.screenshots import ChartScreenshot, DashboardScreenshot
 from superset.utils.urls import get_url_path
 
+from superset.utils.csv import df_to_csv, get_chart_dataframe
+from superset.utils.excel import df_to_excel
+
 logger = logging.getLogger(__name__)
 
 
@@ -158,6 +161,7 @@ class BaseReportState:
         if self._report_schedule.chart:
             if result_format in {
                 ChartDataResultFormat.CSV,
+                ChartDataResultFormat.XLSX,
                 ChartDataResultFormat.JSON,
             }:
                 return get_url_path(
@@ -259,7 +263,7 @@ class BaseReportState:
             raise ReportScheduleCsvFailedError()
         return csv_data
 
-    def _get_embedded_data(self) -> pd.DataFrame:
+    def _get_data(self) -> pd.DataFrame:
         """
         Return data as a Pandas dataframe, to embed in notifications as a table.
         """
@@ -277,7 +281,7 @@ class BaseReportState:
 
         try:
             logger.info("Getting chart from %s as user %s", url, user.username)
-            dataframe = get_chart_dataframe(url, auth_cookies)
+            dataframe = get_chart_dataframe(chart_url=url, auth_cookies=auth_cookies)
         except SoftTimeLimitExceeded as ex:
             raise ReportScheduleDataFrameTimeout() from ex
         except Exception as ex:
@@ -285,7 +289,7 @@ class BaseReportState:
                 f"Failed generating dataframe {str(ex)}"
             ) from ex
         if dataframe is None:
-            raise ReportScheduleCsvFailedError()
+            raise ReportScheduleDataFrameFailedError()
         return dataframe
 
     def _update_query_context(self) -> None:
@@ -303,7 +307,7 @@ class BaseReportState:
             ReportScheduleScreenshotFailedError,
             ReportScheduleScreenshotTimeout,
         ) as ex:
-            raise ReportScheduleCsvFailedError(
+            raise ReportScheduleDataFrameFailedError(
                 "Unable to fetch data because the chart has no query context "
                 "saved, and an error occurred when fetching it via a screenshot. "
                 "Please try loading the chart and saving it again."
@@ -336,7 +340,7 @@ class BaseReportState:
 
         :raises: ReportScheduleScreenshotFailedError
         """
-        csv_data = None
+        data = None # manzana_custom
         embedded_data = None
         error_text = None
         screenshot_data = []
@@ -350,16 +354,19 @@ class BaseReportState:
                 screenshot_data = self._get_screenshots()
                 if not screenshot_data:
                     error_text = "Unexpected missing screenshot"
-            elif (
-                self._report_schedule.chart
-                and self._report_schedule.report_format == ReportDataFormat.DATA
-            ):
-                csv_data = self._get_csv_data()
-                if not csv_data:
-                    error_text = "Unexpected missing csv file"
+            elif self._report_schedule.report_format in ReportDataFormat.table_like(): # manzana_custom
+                df = self._get_data() # manzana_custom
+                data = None # manzana_custom 
+                if self._report_schedule.report_format == ReportDataFormat.CSV: # manzana_custom
+                    data = df_to_csv(df) # manzana_custom
+                elif self._report_schedule.report_format == ReportDataFormat.XLSX: # manzana_custom
+                    data = df_to_excel(df, index=False, from_report=True) # manzana_custom
+
+                if not data:
+                    error_text = "Unexpected missing data"
             if error_text:
                 return NotificationContent(
-                    name=self._report_schedule.name,
+                    name=self._report_schedule.name, # manzana_custom
                     text=error_text,
                     header_data=header_data,
                 )
@@ -368,7 +375,7 @@ class BaseReportState:
             self._report_schedule.chart
             and self._report_schedule.report_format == ReportDataFormat.TEXT
         ):
-            embedded_data = self._get_embedded_data()
+            embedded_data = self._get_data()
 
         if self._report_schedule.chart:
             name = (
@@ -386,7 +393,8 @@ class BaseReportState:
             url=url,
             screenshots=screenshot_data,
             description=self._report_schedule.description,
-            csv=csv_data,
+            data=data,
+            data_format=self._report_schedule.report_format,
             embedded_data=embedded_data,
             header_data=header_data,
         )

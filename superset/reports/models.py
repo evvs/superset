@@ -42,6 +42,8 @@ from superset.models.helpers import AuditMixinNullable, ExtraJSONMixin
 from superset.models.slice import Slice
 from superset.reports.types import ReportScheduleExtra
 
+from typing import Set
+
 metadata = Model.metadata  # pylint: disable=no-member
 
 
@@ -72,8 +74,13 @@ class ReportState(str, enum.Enum):
 
 class ReportDataFormat(str, enum.Enum):
     VISUALIZATION = "PNG"
-    DATA = "CSV"
+    CSV = "CSV"
+    XLSX = "XLSX" # manzana_custom
     TEXT = "TEXT"
+
+    @classmethod
+    def table_like(cls) -> Set["ReportDataFormat"]:
+        return {cls.CSV} | {cls.XLSX} # manzana_custom
 
 
 class ReportCreationMethod(str, enum.Enum):

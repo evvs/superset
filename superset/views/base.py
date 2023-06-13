@@ -82,6 +82,8 @@ from superset.utils.filters import get_dataset_access_filters
 
 from .utils import bootstrap_user_data
 
+from urllib.parse import quote # manzana custom
+
 FRONTEND_CONF_KEYS = (
     "SUPERSET_WEBSERVER_TIMEOUT",
     "SUPERSET_DASHBOARD_POSITION_DATA_LIMIT",
@@ -184,7 +186,8 @@ def generate_download_headers(
     extension: str, filename: Optional[str] = None
 ) -> Dict[str, Any]:
     filename = filename if filename else datetime.now().strftime("%Y%m%d_%H%M%S")
-    content_disp = f"attachment; filename={filename}.{extension}"
+    safe_filename = quote(filename, safe='')  # manzana custom
+    content_disp = f"attachment; filename*=UTF-8''{safe_filename}.{extension}" # manzana custom
     headers = {"Content-Disposition": content_disp}
     return headers
 

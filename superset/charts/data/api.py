@@ -50,6 +50,9 @@ from superset.utils.core import create_zip, get_user_id, json_int_dttm_ser
 from superset.views.base import CsvResponse, generate_download_headers, XlsxResponse
 from superset.views.base_api import statsd_metrics
 
+from superset import db # manzana custom
+from superset.models.slice import Slice # manzana custom
+
 if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
 
@@ -370,10 +373,11 @@ class ChartDataRestApi(ChartRestApi):
             if len(result["queries"]) == 1:
                 # return single query results
                 data = result["queries"][0]["data"]
+                slice_name = db.session.query(Slice).get(form_data.get("slice_id")).slice_name # manzana_custom
                 if is_csv_format:
-                    return CsvResponse(data, headers=generate_download_headers("csv"))
+                    return CsvResponse(data, headers=generate_download_headers("csv", slice_name)) # manzana_custom
 
-                return XlsxResponse(data, headers=generate_download_headers("xlsx"))
+                return XlsxResponse(data, headers=generate_download_headers("xlsx", slice_name)) # manzana_custom
 
             # return multi-query results bundled as a zip file
             def _process_data(query_data: Any) -> Any:

@@ -6034,7 +6034,11 @@
       "%(other)s charts will appear here": ["%(other)s чарты появятся тут"],
       "%(other)s dashboards will appear here": [
         "%(other)s дэшборды появятся тут"
-      ]
+      ],
+      "Formatted Excel attached in email": [
+        "Форматированный Excel, прикрепленный к письму"
+      ],
+      "Send as Excel": ["Отправить в формате Excel"]
     }
   }
 }
