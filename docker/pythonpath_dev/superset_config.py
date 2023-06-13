@@ -151,13 +151,13 @@ THUMBNAIL_SELENIUM_USER = "admin"
  
 # smtp server configuration
 EMAIL_NOTIFICATIONS = True  # all the emails are sent using dryrun
-SMTP_HOST = "smtp.yandex.ru" # test.test.ru
+SMTP_HOST = "" # test.test.ru
 SMTP_STARTTLS = False
 SMTP_SSL = True
-SMTP_USER = "valyaev.evgeniy@yandex.ru" # notifications
-SMTP_PORT = 465
-SMTP_PASSWORD = "xkimqqpvtnbkkbvi" # SET PASSWORD FOR SMTP
-SMTP_MAIL_FROM = "valyaev.evgeniy@yandex.ru" # test@ya.ru
+SMTP_USER = "" # notifications
+SMTP_PORT = 465 # SET PORT
+SMTP_PASSWORD = "" # SET PASSWORD FOR SMTP
+SMTP_MAIL_FROM = "" # test@ya.ru
  
 # only ru language untill fix
 BABEL_DEFAULT_LOCALE = "ru"
