@@ -357,8 +357,9 @@ class BaseReportState:
             elif self._report_schedule.report_format in ReportDataFormat.table_like(): # manzana_custom
                 df = self._get_data() # manzana_custom
                 data = None # manzana_custom 
+                include_index = not isinstance(df.index, pd.RangeIndex) # manzana_custom 
                 if self._report_schedule.report_format == ReportDataFormat.CSV: # manzana_custom
-                    data = df_to_csv(df) # manzana_custom
+                    data = df_to_csv(df, index=False, **app.config["CSV_EXPORT"]) # manzana_custom
                 elif self._report_schedule.report_format == ReportDataFormat.XLSX: # manzana_custom
                     data = df_to_excel(df, index=False, from_report=True) # manzana_custom
 
