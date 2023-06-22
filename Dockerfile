@@ -148,6 +148,8 @@ COPY --chown=superset ./docker/docker-bootstrap.sh /app/docker/
 COPY --chown=superset ./docker/docker-init.sh /app/docker/
 COPY --chown=superset ./docker/docker-ci.sh /app/docker/
 
+COPY --chown=superset ./en_US.mo /usr/local/lib/python3.9/site-packages/cron_descriptor/locale
+
 RUN chmod a+x /app/docker/*.sh
 
 CMD /app/docker/docker-ci.sh
