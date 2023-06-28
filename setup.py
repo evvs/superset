@@ -47,7 +47,8 @@ print("VERSION: " + version_string)
 print("GIT SHA: " + GIT_SHA)
 print("-==-" * 15)
 
-VERSION_INFO_FILE = os.path.join(BASE_DIR, "superset", "static", "version_info.json")
+VERSION_INFO_FILE = os.path.join(
+    BASE_DIR, "superset", "static", "version_info.json")
 
 with open(VERSION_INFO_FILE, "w") as version_file:
     json.dump(version_info, version_file)
@@ -129,7 +130,7 @@ setup(
         "werkzeug>=2.3.3, <3",
         "wtforms>=2.3.3, <4",
         "wtforms-json",
-        "xlsxwriter>=3.0.7, <3.1",
+        "xlsxwriter",
     ],
     extras_require={
         "athena": ["pyathena[pandas]>=2, <3"],

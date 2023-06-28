@@ -71,7 +71,6 @@ def load_chart_data_into_cache(
         security_manager.get_user_by_id(job_metadata.get("user_id"))
         or security_manager.get_anonymous_user()
     )
-
     with override_user(user, force=False):
         try:
             set_form_data(form_data)
