@@ -27,14 +27,14 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, **kwar
 
         workbook  = writer.book
 
-        worksheet = writer.sheets[sheet_name]
-        chart = workbook.add_chart({'type': 'doughnut'})
-        chart.add_series({
-            "name": sheet_name,
-            'categories': '=Sheet1!A2:A8',
-            'values':     '=Sheet1!B2:B8',
-        })
-        worksheet.insert_chart('B4', chart)
+        # worksheet = writer.sheets[sheet_name]
+        # chart = workbook.add_chart({'type': 'doughnut'})
+        # chart.add_series({
+        #     "name": sheet_name,                           implemented next
+        #     'categories': '=Sheet1!A2:A8',
+        #     'values':     '=Sheet1!B2:B8',
+        # })
+        # worksheet.insert_chart('B4', chart)
 
         header_format = workbook.add_format({'bg_color': '#96bfff', 'bold': True}) # manzana custom
         worksheet = writer.sheets[sheet_name] # manzana custom
