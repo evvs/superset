@@ -361,7 +361,7 @@ class BaseReportState:
                 if self._report_schedule.report_format == ReportDataFormat.CSV: # manzana_custom
                     data = df_to_csv(df, index=False, **app.config["CSV_EXPORT"]) # manzana_custom
                 elif self._report_schedule.report_format == ReportDataFormat.XLSX: # manzana_custom
-                    data = df_to_excel(df, index=False, from_report=True) # manzana_custom
+                    data = df_to_excel(df, index=False, from_report=True, slice=self._report_schedule.chart) # manzana_custom
 
                 if not data:
                     error_text = "Unexpected missing data"

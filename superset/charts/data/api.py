@@ -220,7 +220,6 @@ class ChartDataRestApi(ChartRestApi):
               $ref: '#/components/responses/500'
         """
 
-        # print("I AM ASYNC LOADER FOR!!!", flush=True) implemented next
         json_body = None
         if request.is_json:
             json_body = request.json

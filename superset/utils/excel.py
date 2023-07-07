@@ -18,36 +18,63 @@ import io
 from typing import Any
 
 import pandas as pd
+from typing import Union
+from superset.models.slice import Slice
+from superset.manzana_custom.excel.generate_chart import GenerateChart
 
-def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, **kwargs: Any) -> bytes:
+import numpy as np
+import logging
+logger = logging.getLogger(__name__)
+
+def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice: Union[Slice, None] = None, **kwargs: Any) -> bytes:
     output = io.BytesIO()
+
+    # Normalize and format datetime columns
+
+    try:
+        if (slice):
+            for col in df.select_dtypes(include=[np.datetime64, 'datetime']).columns:
+                col_name = df[col].name
+                if isinstance(col_name, tuple):
+                    col_name=col_name[0]
+                date_format = slice.form_data.get("column_config").get(col_name).get("d3TimeFormat")
+                if (date_format and date_format != "smart_date"):
+                    df[col] = df[col].dt.strftime(date_format)
+    except BaseException as err:
+        logger.error("ERROR WHEN TRYING FORMAT DATE")
+        logger.error(err)
 
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         df.to_excel(writer, sheet_name=sheet_name, **kwargs)
 
-        workbook  = writer.book
+        workbook = writer.book
 
-        # worksheet = writer.sheets[sheet_name]
-        # chart = workbook.add_chart({'type': 'doughnut'})
-        # chart.add_series({
-        #     "name": sheet_name,                           implemented next
-        #     'categories': '=Sheet1!A2:A8',
-        #     'values':     '=Sheet1!B2:B8',
-        # })
-        # worksheet.insert_chart('B4', chart)
+        header_format = workbook.add_format(
+            {'bg_color': '#96bfff', 'bold': True})  # manzana custom
+        worksheet = writer.sheets[sheet_name]  # manzana custom
 
-        header_format = workbook.add_format({'bg_color': '#96bfff', 'bold': True}) # manzana custom
-        worksheet = writer.sheets[sheet_name] # manzana custom
+        for col_num, value in enumerate(df.columns.values):  # manzana custom
+            if isinstance(value, tuple):  # manzana custom
+                value = value[0]  # manzana custom
 
-        for col_num, value in enumerate(df.columns.values): # manzana custom
-            if isinstance(value, tuple): # manzana custom
-                value = value[0] # manzana custom
-            
-            worksheet.write(0, col_num, value, header_format) # manzana custom
-        
-        if from_report: # manzana custom
-            worksheet.write(0, len(df.columns.values), None, workbook.add_format()) # manzana custom
+            worksheet.write(0, col_num, value, header_format)  # manzana custom
+
+        if from_report:  # manzana custom
+            worksheet.write(0, len(df.columns.values), None,
+                            workbook.add_format())  # manzana custom
 
         worksheet.autofit()  # manzana custom
+
+        if (slice and slice.datasource):
+            if (slice.datasource.type):
+                try:
+                    chart_name = str(slice.slice_name)
+                    chart = GenerateChart(df, workbook, worksheet, chart_name)  # type: ignore
+                    chart_type = slice.form_data.get("viz_type")
+                    if (chart_type):
+                        chart.generate(chart_type)
+                except BaseException as err:
+                    logger.error("ERROR WITH GENERATING CHART")
+                    logger.error(err)
 
     return output.getvalue()
