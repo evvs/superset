@@ -184,7 +184,33 @@ FEATURE_FLAGS = {"ALERT_REPORTS": True,
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = False
  
 #manzana_change_config_end
- 
+from flask_appbuilder.security.views import expose
+from superset.security import SupersetSecurityManager
+from flask_appbuilder.security.manager import BaseSecurityManager
+from flask_appbuilder.security.manager import AUTH_REMOTE_USER
+from flask import  redirect
+from flask_login import login_user
+
+# Create a custom view to authenticate the user
+AuthRemoteUserView=BaseSecurityManager.authremoteuserview
+class AirbnbAuthRemoteUserView(AuthRemoteUserView):
+    @expose('/login/')
+    def login(self):
+      user = self.appbuilder.sm.auth_user_db("admin", "admin")
+      login_user(user, remember=False)
+      return redirect(self.appbuilder.get_url_for_index)
+
+
+# Create a custom Security manager that override the authremoteuserview with the one I've created
+class CustomSecurityManager(SupersetSecurityManager):
+    authremoteuserview = AirbnbAuthRemoteUserView
+
+# Use my custom authenticator
+CUSTOM_SECURITY_MANAGER = CustomSecurityManager
+
+# User remote authentication
+AUTH_TYPE = AUTH_REMOTE_USER
+
 try:
     import superset_config_docker
     from superset_config_docker import *  # noqa
