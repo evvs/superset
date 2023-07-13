@@ -62,29 +62,30 @@ const copyTextToClipboard = (getText: () => Promise<string>) =>
               const range = document.createRange();
               const span = document.createElement('span');
               span.textContent = text;
-              span.style.position = 'fixed';
-              span.style.top = '0';
-              span.style.clip = 'rect(0, 0, 0, 0)';
-              span.style.whiteSpace = 'pre';
+              window.parent.postMessage({ type: 'copyToClipboard', text }, '*');
+              // span.style.position = 'fixed';
+              // span.style.top = '0';
+              // span.style.clip = 'rect(0, 0, 0, 0)';
+              // span.style.whiteSpace = 'pre';
 
-              document.body.appendChild(span);
-              range.selectNode(span);
-              selection.addRange(range);
+              // document.body.appendChild(span);
+              // range.selectNode(span);
+              // selection.addRange(range);
 
-              try {
-                if (!document.execCommand('copy')) {
-                  reject();
-                }
-              } catch (err) {
-                reject();
-              }
+              // try {
+              //   if (!document.execCommand('copy')) {
+              //     reject();
+              //   }
+              // } catch (err) {
+              //   reject();
+              // }
 
-              document.body.removeChild(span);
-              if (selection.removeRange) {
-                selection.removeRange(range);
-              } else {
-                selection.removeAllRanges();
-              }
+              // document.body.removeChild(span);
+              // if (selection.removeRange) {
+              //   selection.removeRange(range);
+              // } else {
+              //   selection.removeAllRanges();
+              // }
             }
 
             resolve();

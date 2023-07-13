@@ -182,8 +182,8 @@ FEATURE_FLAGS = {"ALERT_REPORTS": True,
 "DASHBOARD_CROSS_FILTERS": True,}
  
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = False
- 
-#manzana_change_config_end
+
+# For iframe
 from flask_appbuilder.security.views import expose
 from superset.security import SupersetSecurityManager
 from flask_appbuilder.security.manager import BaseSecurityManager
@@ -205,11 +205,21 @@ class AirbnbAuthRemoteUserView(AuthRemoteUserView):
 class CustomSecurityManager(SupersetSecurityManager):
     authremoteuserview = AirbnbAuthRemoteUserView
 
+    # def is_item_public(self, name, attr):
+    #     return True
+
 # Use my custom authenticator
 CUSTOM_SECURITY_MANAGER = CustomSecurityManager
 
 # User remote authentication
 AUTH_TYPE = AUTH_REMOTE_USER
+
+# WTF_CSRF_ENABLED = False
+
+# SESSION_COOKIE_SAMESITE="None"
+
+#manzana_change_config_end
+
 
 try:
     import superset_config_docker

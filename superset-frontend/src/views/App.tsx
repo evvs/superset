@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useRef } from 'react';
 import { hot } from 'react-hot-loader/root';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   useLocation,
+  useHistory,
 } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { GlobalStyles } from 'src/GlobalStyles';
@@ -40,7 +41,6 @@ import { logEvent } from 'src/logger/actions';
 import { store } from 'src/views/store';
 import { RootContextProviders } from './RootContextProviders';
 import { ScrollToTop } from './ScrollToTop';
-
 setupApp();
 setupPlugins();
 setupExtensions();
@@ -51,7 +51,9 @@ let lastLocationPathname: string;
 
 const boundActions = bindActionCreators({ logEvent }, store.dispatch);
 
-const LocationPathnameLogger = () => {
+export const LocationPathnameLogger = () => {
+  const messageChannel = new MessageChannel();
+
   const location = useLocation();
   useEffect(() => {
     // This will log client side route changes for single page app user navigation
@@ -63,35 +65,75 @@ const LocationPathnameLogger = () => {
     if (lastLocationPathname && lastLocationPathname !== location.pathname) {
       Logger.markTimeOrigin();
     }
+    window.parent.postMessage('initialize', '*', [messageChannel.port2]);
+    messageChannel.port1.postMessage(location.pathname + location.search);
     lastLocationPathname = location.pathname;
   }, [location.pathname]);
   return <></>;
 };
 
-const App = () => (
-  <Router>
-    <ScrollToTop />
-    <LocationPathnameLogger />
-    <RootContextProviders>
-      <GlobalStyles />
-      <Menu
-        data={bootstrapData.common.menu_data}
-        isFrontendRoute={isFrontendRoute}
-      />
-      <Switch>
-        {routes.map(({ path, Component, props = {}, Fallback = Loading }) => (
-          <Route path={path} key={path}>
-            <Suspense fallback={<Fallback />}>
-              <ErrorBoundary>
-                <Component user={bootstrapData.user} {...props} />
-              </ErrorBoundary>
-            </Suspense>
-          </Route>
-        ))}
-      </Switch>
-      <ToastContainer />
-    </RootContextProviders>
-  </Router>
-);
+const App = () => {
+  // const history = useHistory();
+  // const messageChannel = new MessageChannel();
+  // useEffect(() => {
+  //   window.parent.postMessage('initialize', '*', [messageChannel.port2]);
+
+  //   return history.listen(location => {
+  //     // Send the new route to the parent window
+  //     messageChannel.port1.postMessage(location.pathname);
+  //   });
+  // }, []);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const postHeight = () => {
+      if (sentinelRef.current) {
+        const rect = sentinelRef.current.getBoundingClientRect();
+        const absolutePositionTop = window.pageYOffset + rect.top;
+        window.parent.postMessage(
+          { type: 'heightChange', height: absolutePositionTop },
+          '*',
+        );
+      }
+    };
+
+    const mo = new MutationObserver(postHeight);
+
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    postHeight();
+
+    return () => mo.disconnect();
+  }, []);
+  return (
+    <>
+      <Router>
+        <ScrollToTop />
+        <LocationPathnameLogger />
+        <RootContextProviders>
+          <GlobalStyles />
+          <Menu
+            data={bootstrapData.common.menu_data}
+            isFrontendRoute={isFrontendRoute}
+          />
+          <Switch>
+            {routes.map(
+              ({ path, Component, props = {}, Fallback = Loading }) => (
+                <Route path={path} key={path}>
+                  <Suspense fallback={<Fallback />}>
+                    <ErrorBoundary>
+                      <Component user={bootstrapData.user} {...props} />
+                    </ErrorBoundary>
+                  </Suspense>
+                </Route>
+              ),
+            )}
+          </Switch>
+          <ToastContainer />
+        </RootContextProviders>
+      </Router>
+      <div ref={sentinelRef} />
+    </>
+  );
+};
 
 export default hot(App);
