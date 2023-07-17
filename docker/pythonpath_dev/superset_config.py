@@ -105,7 +105,6 @@ FEATURE_FLAGS = {"ALERT_REPORTS": True}
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 WEBDRIVER_BASEURL = "http://superset:8088/"
 # The base URL for the email report hyperlinks.
-WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
  
 SQLLAB_CTAS_NO_LIMIT = True
  
@@ -151,13 +150,15 @@ THUMBNAIL_SELENIUM_USER = "admin"
  
 # smtp server configuration
 EMAIL_NOTIFICATIONS = True  # all the emails are sent using dryrun
-SMTP_HOST = "" # test.test.ru
+SMTP_HOST = "smtp.yandex.ru" # test.test.ru
 SMTP_STARTTLS = False
 SMTP_SSL = True
-SMTP_USER = "" # notifications
-SMTP_PORT = 465 # SET PORT
-SMTP_PASSWORD = "" # SET PASSWORD FOR SMTP
-SMTP_MAIL_FROM = "" # test@ya.ru
+SMTP_USER = "valyaev.evgeniy@yandex.ru" # notifications
+SMTP_PORT = 465
+SMTP_PASSWORD = "dzrzwhzlzbeoljex" # SET PASSWORD FOR SMTP
+SMTP_MAIL_FROM = "valyaev.evgeniy@yandex.ru" # test@ya.ru
+
+WEBDRIVER_BASEURL_USER_FRIENDLY = 'http://localhost:8088' #This his is the link sent to the recipient. Change to your domain, e.g. https://superset.mydomain.com
  
 # only ru language untill fix
 BABEL_DEFAULT_LOCALE = "ru"

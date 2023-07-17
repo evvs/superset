@@ -1640,7 +1640,7 @@ msgstr ""
 
 #: superset-frontend/src/components/AlteredSliceTag/index.jsx:202
 msgid "Altered"
-msgstr "Измененено"
+msgstr "Изменено"
 
 #: superset-frontend/src/views/CRUD/data/dataset/AddDataset/DatasetPanel/MessageContent.tsx:71
 msgid "An Error Occurred"
