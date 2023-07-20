@@ -46,6 +46,8 @@ export type NotificationMethodOption = 'Email' | 'Slack';
 export type Recipient = {
   recipient_config_json: {
     target: string;
+    target_cc: string;
+    target_bcc: string;
   };
   type: NotificationMethodOption;
 };

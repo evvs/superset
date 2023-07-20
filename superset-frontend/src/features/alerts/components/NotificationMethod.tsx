@@ -18,7 +18,7 @@
  */
 import React, { FunctionComponent, useState } from 'react';
 import { styled, t, useTheme } from '@superset-ui/core';
-import { Select } from 'src/components';
+import { AntdCheckbox, Select } from 'src/components';
 import Icons from 'src/components/Icons';
 import { NotificationMethodOption } from '../types';
 import { StyledInputContainer } from '../AlertReportModal';
@@ -53,6 +53,8 @@ const StyledNotificationMethod = styled.div`
 type NotificationSetting = {
   method?: NotificationMethodOption;
   recipients: string;
+  recipients_cc: string;
+  recipients_bcc: string;
   options: NotificationMethodOption[];
 };
 
@@ -63,16 +65,33 @@ interface NotificationMethodProps {
   onRemove?: (index: number) => void;
 }
 
+const StyledCheckbox = styled(AntdCheckbox)`
+  margin-left: ${({ theme }) => theme.gridUnit * 5.5}px;
+  margin-top: ${({ theme }) => theme.gridUnit}px;
+`;
+
 export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
   setting = null,
   index,
   onUpdate,
   onRemove,
 }) => {
-  const { method, recipients, options } = setting || {};
+  const { method, recipients, options, recipients_cc, recipients_bcc } =
+    setting || {};
   const [recipientValue, setRecipientValue] = useState<string>(
     recipients || '',
   );
+
+  const [recipientCcValue, setRecipientCCValue] = useState<string>(
+    recipients_cc || '',
+  );
+
+  const [recipientBccValue, setRecipientBccValue] = useState<string>(
+    recipients_bcc || '',
+  );
+
+  const [showBcc, setShowBcc] = useState<boolean>(false);
+
   const theme = useTheme();
 
   if (!setting) {
@@ -104,6 +123,40 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
       const updatedSetting = {
         ...setting,
         recipients: target.value,
+      };
+
+      onUpdate(index, updatedSetting);
+    }
+  };
+
+  const onRecipients_CC_Change = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const { target } = event;
+
+    setRecipientCCValue(target.value);
+
+    if (onUpdate) {
+      const updatedSetting = {
+        ...setting,
+        recipients_cc: target.value,
+      };
+
+      onUpdate(index, updatedSetting);
+    }
+  };
+
+  const onRecipients_Bcc_Change = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const { target } = event;
+
+    setRecipientBccValue(target.value);
+
+    if (onUpdate) {
+      const updatedSetting = {
+        ...setting,
+        recipients_bcc: target.value,
       };
 
       onUpdate(index, updatedSetting);
@@ -147,19 +200,66 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
         ) : null}
       </div>
       {method !== undefined ? (
-        <StyledInputContainer>
-          <div className="control-label">{t(method)}</div>
-          <div className="input-container">
-            <textarea
-              name="recipients"
-              value={recipientValue}
-              onChange={onRecipientsChange}
-            />
-          </div>
-          <div className="helper">
-            {t('Recipients are separated by "," or ";"')}
-          </div>
-        </StyledInputContainer>
+        <>
+          <StyledInputContainer>
+            <div className="control-label">
+              {t(method)} {t('To')}
+            </div>
+            <div className="input-container">
+              <textarea
+                name="recipients"
+                value={recipientValue}
+                onChange={onRecipientsChange}
+              />
+            </div>
+            <div className="helper">
+              {t('Recipients are separated by "," or ";"')}
+            </div>
+          </StyledInputContainer>
+          <StyledInputContainer>
+            <div className="control-label">
+              {t(method)} {t('Cc')}
+            </div>
+            <div className="input-container">
+              <textarea
+                name="recipients_cc"
+                value={recipientCcValue}
+                onChange={onRecipients_CC_Change}
+              />
+            </div>
+            <div className="helper">
+              {t('Recipients are separated by "," or ";"')}
+            </div>
+          </StyledInputContainer>
+          <StyledCheckbox
+            data-test="bypass-cache"
+            className="checkbox"
+            checked={showBcc}
+            onChange={() => {
+              setShowBcc(!showBcc);
+            }}
+          >
+            {t('Bcc')}
+          </StyledCheckbox>
+
+          {showBcc && (
+            <StyledInputContainer>
+              <div className="control-label">
+                {t(method)} {t('Bcc')}
+              </div>
+              <div className="input-container">
+                <textarea
+                  name="recipients_cc"
+                  value={recipientBccValue}
+                  onChange={onRecipients_Bcc_Change}
+                />
+              </div>
+              <div className="helper">
+                {t('Recipients are separated by "," or ";"')}
+              </div>
+            </StyledInputContainer>
+          )}
+        </>
       ) : null}
     </StyledNotificationMethod>
   );

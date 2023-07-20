@@ -109,6 +109,8 @@ class ValidatorConfigJSONSchema(Schema):
 class ReportRecipientConfigJSONSchema(Schema):
     # TODO if email check validity
     target = fields.String()
+    target_cc = fields.String()
+    target_bcc = fields.String()
 
 
 class ReportRecipientSchema(Schema):

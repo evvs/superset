@@ -108,10 +108,12 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 for screenshot in self._content.screenshots
             }
 
+        # Replace \n with <br> before sanitization
+        description = (self._content.description or "").replace("\n", "<br>")
         # Strip any malicious HTML from the description
         # pylint: disable=no-member
         description = nh3.clean(
-            self._content.description or "",
+            description,
             tags=ALLOWED_TAGS,
             attributes=ALLOWED_ATTRIBUTES,
         )
@@ -191,12 +193,20 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
 
     def _get_to(self) -> str:
         return json.loads(self._recipient.recipient_config_json)["target"]
+    
+    def _get_to_cc(self) -> str:
+        return json.loads(self._recipient.recipient_config_json)["target_cc"]
+    
+    def _get_to_bcc(self) -> str:
+        return json.loads(self._recipient.recipient_config_json)["target_bcc"]
 
     @statsd_gauge("reports.email.send")
     def send(self) -> None:
         subject = self._get_subject()
         content = self._get_content()
         to = self._get_to()
+        to_cc = self._get_to_cc()
+        to_bcc = self._get_to_bcc()
         try:
             send_email_smtp(
                 to,
@@ -206,7 +216,8 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 files=[],
                 data=content.data,
                 images=content.images,
-                bcc="",
+                cc =to_cc,
+                bcc=to_bcc,
                 mime_subtype="related",
                 dryrun=False,
                 header_data=content.header_data,

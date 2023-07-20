@@ -6038,7 +6038,10 @@
       "Formatted Excel attached in email": [
         "Форматированный Excel, прикрепленный к письму"
       ],
-      "Send as Excel": ["Отправить в формате Excel"]
+      "Send as Excel": ["Отправить в формате Excel"],
+      "To": ["Кому"],
+      "Cc": ["Копия"],
+      "Bcc": ["Скрытая копия"]
     }
   }
 }

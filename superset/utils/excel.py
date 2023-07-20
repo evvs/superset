@@ -31,7 +31,6 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
     output = io.BytesIO()
 
     # Normalize and format datetime columns
-
     if (slice):
         try:
             for idx, column in enumerate(df.columns):
@@ -75,6 +74,7 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
 
         worksheet.autofit()  # manzana custom
 
+
         if (slice and slice.datasource):
             if (slice.datasource.type):
                 try:
@@ -83,6 +83,8 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                         df, workbook, worksheet, chart_name)  # type: ignore
                     chart_type = slice.form_data.get("viz_type")
                     if (chart_type):
+                        if (chart_type == 'pie' and slice.form_data.get('donut')):
+                            chart_type = 'donut'
                         chart.generate(chart_type)
                 except BaseException as err:
                     logger.error("ERROR WITH GENERATING CHART")

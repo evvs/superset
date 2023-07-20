@@ -243,24 +243,24 @@ export const exportChart = ({
 }) => {
   let url;
   let payload;
-  if (shouldUseLegacyApi(formData)) {
-    const endpointType = getLegacyEndpointType({ resultFormat, resultType });
-    url = getExploreUrl({
-      formData,
-      endpointType,
-      allowDomainSharding: false,
-    });
-    payload = formData;
-  } else {
-    url = '/api/v1/chart/data';
-    payload = buildV1ChartDataPayload({
-      formData,
-      force,
-      resultFormat,
-      resultType,
-      ownState,
-    });
-  }
+  // if (shouldUseLegacyApi(formData)) {
+  //   const endpointType = getLegacyEndpointType({ resultFormat, resultType });
+  //   url = getExploreUrl({
+  //     formData,
+  //     endpointType,
+  //     allowDomainSharding: false,
+  //   });
+  //   payload = formData;
+  // } else {
+  url = '/api/v1/chart/data';
+  payload = buildV1ChartDataPayload({
+    formData,
+    force,
+    resultFormat,
+    resultType,
+    ownState,
+  });
+  // }
 
   SupersetClient.postForm(url, { form_data: safeStringify(payload) });
 };

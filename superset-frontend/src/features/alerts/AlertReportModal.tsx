@@ -146,6 +146,10 @@ const StyledModal = styled(Modal)`
   max-width: 1200px;
   width: 100%;
 
+  .ant-modal-content {
+    max-height: max-content;
+  }
+
   .ant-modal-body {
     overflow: initial;
   }
@@ -167,7 +171,7 @@ const StyledSectionContainer = styled.div`
   .header-section {
     display: flex;
     flex: 0 0 auto;
-    align-items: center;
+    align-items: self-end;
     width: 100%;
     padding: ${({ theme }) => theme.gridUnit * 4}px;
     border-bottom: 1px solid ${({ theme }) => theme.colors.grayscale.light2};
@@ -241,7 +245,6 @@ const StyledSectionTitle = styled.div`
 const StyledSwitchContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-top: 10px;
 
   .switch-label {
     margin-left: 10px;
@@ -293,8 +296,7 @@ export const StyledInputContainer = styled.div`
   }
 
   textarea {
-    height: 300px;
-    resize: none;
+    resize: auto;
   }
 
   input::placeholder,
@@ -439,6 +441,8 @@ const NotificationMethodAdd: FunctionComponent<NotificationMethodAddProps> = ({
 type NotificationSetting = {
   method?: NotificationMethodOption;
   recipients: string;
+  recipients_cc: string;
+  recipients_bcc: string;
   options: NotificationMethodOption[];
 };
 
@@ -493,6 +497,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
 
     settings.push({
       recipients: '',
+      recipients_cc: '',
+      recipients_bcc: '',
       options: allowedNotificationMethods,
     });
 
@@ -586,6 +592,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
         recipients.push({
           recipient_config_json: {
             target: setting.recipients,
+            target_cc: setting.recipients_cc,
+            target_bcc: setting.recipients_bcc,
           },
           type: setting.method,
         });
@@ -1044,6 +1052,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
           method: setting.type,
           // @ts-ignore: Type not assignable
           recipients: config.target || setting.recipient_config_json,
+          recipients_cc: config.target_cc || '',
+          recipients_bcc: config.target_bcc || '',
           options: allowedNotificationMethods,
         };
       });
@@ -1206,19 +1216,6 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
                 }
                 options={loadOwnerOptions}
                 onChange={onOwnersChange}
-                css={inputSpacer}
-              />
-            </div>
-          </StyledInputContainer>
-          <StyledInputContainer>
-            <div className="control-label">{TRANSLATIONS.DESCRIPTION_TEXT}</div>
-            <div className="input-container">
-              <input
-                type="text"
-                name="description"
-                value={currentAlert ? currentAlert.description || '' : ''}
-                placeholder={TRANSLATIONS.DESCRIPTION_TEXT}
-                onChange={onTextChange}
                 css={inputSpacer}
               />
             </div>
@@ -1413,6 +1410,21 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
               <h4>{TRANSLATIONS.MESSAGE_CONTENT_TEXT}</h4>
               <span className="required">*</span>
             </StyledSectionTitle>
+            <StyledInputContainer>
+              <div className="control-label">
+                {TRANSLATIONS.DESCRIPTION_TEXT}
+              </div>
+              <div className="input-container">
+                <textarea
+                  name="description"
+                  rows={3}
+                  value={currentAlert ? currentAlert.description || '' : ''}
+                  placeholder={TRANSLATIONS.DESCRIPTION_TEXT}
+                  onChange={onTextChange}
+                  css={inputSpacer}
+                />
+              </div>
+            </StyledInputContainer>
             <Radio.Group onChange={onContentTypeChange} value={contentType}>
               <StyledRadio value="dashboard">
                 {TRANSLATIONS.DASHBOARD_TEXT}

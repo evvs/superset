@@ -19722,3 +19722,12 @@ msgstr "Форматированный Excel, прикрепленный к пи
 
 msgid "Send as Excel"
 msgstr "Отправить в формате Excel"
+
+msgid "To"
+msgstr "Кому"
+
+msgid "Cc"
+msgstr "Копия"
+
+msgid "Bcc"
+msgstr "Скрытая копия"
