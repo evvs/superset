@@ -33,12 +33,13 @@ class GenerateChart:
         self.num_rows = df.shape[0]
 
     def generate(self, chart_type: str):
-        """Generates an Excel chart based on the provided chart type."""        
+        """Generates an Excel chart based on the provided chart type."""
         chart_types = {
             "pie": self.__generate_pie_chart,
             "donut": self.__generate_doughnut_chart,
             "echarts_timeseries_bar": self.__generate_column_chart,
-            "bar": self.__generate_column_chart, #dont use it old type
+            "bar": self.__generate_column_chart,  # dont use it old type
+            "dist_bar": self.__generate_column_chart,  # dont use it old type
             "echarts_timeseries_line": self.__generate_line_chart,
             "line": self.__generate_line_chart,
             "echarts_area": self.__generate_area_chart,
@@ -95,7 +96,7 @@ class GenerateChart:
     def __generate_area_chart(self):
         """Generates an area chart."""
         self.__generate_chart('area', 11)
-    
+
     def __generate_scatter_chart(self):
         """Generates a scatter chart."""
         self.__generate_chart('scatter', 11)
