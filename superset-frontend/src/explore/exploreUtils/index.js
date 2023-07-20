@@ -241,8 +241,8 @@ export const exportChart = ({
   force = false,
   ownState = {},
 }) => {
-  let url;
-  let payload;
+  // let url;
+  // let payload;
   // if (shouldUseLegacyApi(formData)) {
   //   const endpointType = getLegacyEndpointType({ resultFormat, resultType });
   //   url = getExploreUrl({
@@ -252,8 +252,8 @@ export const exportChart = ({
   //   });
   //   payload = formData;
   // } else {
-  url = '/api/v1/chart/data';
-  payload = buildV1ChartDataPayload({
+  const url = '/api/v1/chart/data';
+  const payload = buildV1ChartDataPayload({
     formData,
     force,
     resultFormat,
