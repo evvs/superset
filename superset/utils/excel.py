@@ -33,26 +33,38 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
     # Normalize and format datetime columns
     if (slice):
         try:
-            for idx, column in enumerate(df.columns):
-                if df[column].dtype in ['datetime64[ns]', 'datetime']:
-                    col_name = column if not isinstance(column, tuple) else column[0]
-                    col_config = slice.form_data.get("column_config", {}).get(col_name) #.get("d3TimeFormat")
+            column_config = slice.form_data.get("column_config")
+            if (column_config):
+                for idx, column in enumerate(df.columns):
+                    col_name = column if not isinstance(
+                        column, tuple) else column[0]
+                    in_column_config = column_config.get(
+                        col_name)
 
-                    if (not col_config):
+                    if (not in_column_config):
                         mapped_field = ''
-                        all_columns = slice.form_data.get("all_columns")
-                        if (all_columns):
-                            mapped_field = all_columns[idx]
-                        col_config =  slice.form_data.get("column_config", {}).get(mapped_field)
+                        source_for_mapping = []
+                        if (slice.form_data.get("query_mode") == 'aggregate'):
+                            source_for_mapping = slice.form_data.get("groupby")
+                        elif (slice.form_data.get("query_mode") == 'raw'):
+                            source_for_mapping = slice.form_data.get(
+                                "all_columns")
+                        if (len(source_for_mapping)):
+                            mapped_field = source_for_mapping[idx]
+                        in_column_config = column_config.get(mapped_field)
 
-                    date_format = col_config.get("d3TimeFormat")
+                    if (in_column_config):
+                        date_format = in_column_config.get("d3TimeFormat")
 
-                    if date_format and date_format != "smart_date":
-                        df[column] = df[column].dt.strftime(date_format)
+                        if date_format and date_format != "smart_date":
+                            df[column] = pd.to_datetime(df[column])
+                            df[column] = df[column].dt.strftime(date_format)
         except Exception as err:
             logger.error(f"ERROR WHEN TRYING FORMAT DATE for column: {column}")
+            logger.error(
+                f"Data type of the column before conversion: {df[column].dtype}")
             logger.error(err)
-    
+
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         df.to_excel(writer, sheet_name=sheet_name, **kwargs)
 
@@ -73,7 +85,6 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                             workbook.add_format())  # manzana custom
 
         worksheet.autofit()  # manzana custom
-
 
         if (slice and slice.datasource):
             if (slice.datasource.type):
