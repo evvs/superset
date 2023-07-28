@@ -32,6 +32,7 @@ from superset.reports.notifications.base import BaseNotification
 from superset.reports.notifications.exceptions import NotificationError
 from superset.utils.core import HeaderDataType, send_email_smtp
 from superset.utils.decorators import statsd_gauge
+from datetime import date
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +99,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
             return EmailContent(body=self._error_template(self._content.text))
         # Get the domain from the 'From' address ..
         # and make a message id without the < > in the end
-        attachment = None # manzana_custom
+        attachment = None  # manzana_custom
         domain = self._get_smtp_domain()
         images = {}
 
@@ -172,6 +173,10 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
         if self._content.data and self._content.data_format:
             attachment = {
                 __(
+                    self._content.filename
+                ): self._content.data
+            } if self._content.filename else {
+                __(
                     "%(name)s.%(format)s",
                     name=self._content.name,
                     format=self._content.data_format.lower(),
@@ -187,16 +192,18 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
     def _get_subject(self) -> str:
         return __(
             "%(prefix)s %(title)s",
-            prefix=app.config["EMAIL_REPORTS_SUBJECT_PREFIX"],
+            prefix=date.today().strftime("%d.%m.%Y") if self._content.name_with_date else '',
             title=self._content.name,
+            # self._content.name,
+            # prefix=date.today().strftime("%d.%m.%Y") if self._content.name_with_date else ''
         )
 
     def _get_to(self) -> str:
         return json.loads(self._recipient.recipient_config_json)["target"]
-    
+
     def _get_to_cc(self) -> str:
         return json.loads(self._recipient.recipient_config_json)["target_cc"]
-    
+
     def _get_to_bcc(self) -> str:
         return json.loads(self._recipient.recipient_config_json)["target_bcc"]
 
@@ -216,7 +223,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 files=[],
                 data=content.data,
                 images=content.images,
-                cc =to_cc,
+                cc=to_cc,
                 bcc=to_bcc,
                 mime_subtype="related",
                 dryrun=False,

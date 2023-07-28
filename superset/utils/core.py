@@ -940,7 +940,6 @@ def send_email_smtp(  # pylint: disable=invalid-name,too-many-arguments,too-many
     """
     smtp_mail_from = config["SMTP_MAIL_FROM"]
     smtp_mail_to = get_email_address_list(to)
-
     msg = MIMEMultipart(mime_subtype)
     msg["Subject"] = subject
     msg["From"] = smtp_mail_from

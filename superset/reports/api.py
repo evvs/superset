@@ -107,6 +107,7 @@ class ReportScheduleRestApi(BaseSupersetModelRestApi):
         "last_value_row_json",
         "log_retention",
         "name",
+        "name_with_date",
         "owners.first_name",
         "owners.id",
         "owners.last_name",
@@ -120,6 +121,7 @@ class ReportScheduleRestApi(BaseSupersetModelRestApi):
         "validator_config_json",
         "validator_type",
         "working_timeout",
+        "filename"
     ]
     show_select_columns = show_columns + [
         "chart.datasource_id",

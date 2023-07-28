@@ -27,6 +27,8 @@ from superset.utils.core import HeaderDataType
 @dataclass
 class NotificationContent:
     name: str
+    filename: str
+    name_with_date: bool
     header_data: HeaderDataType  # this is optional to account for error states
     data: Optional[bytes] = None  # bytes for data attachment # manzana_custom
     data_format: Optional[str] = None  # data attachment format (csv, xlsx, etc) # manzana_custom

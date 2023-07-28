@@ -42,8 +42,10 @@ class GenerateChart:
             "dist_bar": self.__generate_column_chart,  # dont use it old type
             "echarts_timeseries_line": self.__generate_line_chart,
             "line": self.__generate_line_chart,
+            # "dual_line": self.__generate_dual_line_chart, # need fix
             "echarts_area": self.__generate_area_chart,
-            "echarts_timeseries_scatter": self.__generate_scatter_chart
+            "echarts_timeseries_scatter": self.__generate_scatter_chart,
+            "radar": self.__generate_radar_chart,
         }
         chart_method = chart_types.get(chart_type)
         if chart_method:
@@ -100,6 +102,37 @@ class GenerateChart:
     def __generate_scatter_chart(self):
         """Generates a scatter chart."""
         self.__generate_chart('scatter', 11)
+
+    def __generate_radar_chart(self):
+        """Generates a radar chart."""
+        self.__generate_chart('radar', 11)
+
+    def __generate_dual_line_chart(self):
+        """Generates a dual line chart."""
+        try:
+            chart = self.workbook.add_chart({'type': 'line'})
+            categories = self._generate_categories_values()[0]
+
+            for i in range(1, self.df.shape[1]):
+                col_letter = col_num_to_letter(i+1)
+                _, values = self._generate_categories_values(col_letter)
+                chart.add_series({
+                    "name": str(self.df.columns[i]),
+                    'categories': categories,
+                    'values': values,
+                    'y2_axis': 1 if i == 1 else 0,
+                })
+
+            chart.set_title({"name": self.slice_name})
+            chart.set_x_axis({"name": "Days"})
+            chart.set_y_axis({"name": "Population", "major_gridlines": {"visible": 0}})
+            chart.set_y2_axis({"name": "Laser wounds"})
+            chart.set_legend({"position": "right"})
+            self.worksheet.insert_chart(self.cell_for_rendering, chart, {
+                "x_offset": 25, "y_offset": 10})
+        except Exception as err:
+            logger.error(f"Error when trying to generate dual line chart.")
+            logger.error(err)
 
     def __generate_chart(self, chart_type: str, style: int):
         """Generates a chart of the specified type and style."""

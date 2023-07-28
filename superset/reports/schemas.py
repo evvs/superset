@@ -115,7 +115,8 @@ class ReportRecipientConfigJSONSchema(Schema):
 
 class ReportRecipientSchema(Schema):
     type = fields.String(
-        metadata={"description": "The recipient type, check spec for valid options"},
+        metadata={
+            "description": "The recipient type, check spec for valid options"},
         allow_none=False,
         required=True,
         validate=validate.OneOf(
@@ -130,10 +131,12 @@ class ReportSchedulePostSchema(Schema):
         metadata={"description": type_description},
         allow_none=False,
         required=True,
-        validate=validate.OneOf(choices=tuple(key.value for key in ReportScheduleType)),
+        validate=validate.OneOf(choices=tuple(
+            key.value for key in ReportScheduleType)),
     )
     name = fields.String(
-        metadata={"description": name_description, "example": "Daily dashboard email"},
+        metadata={"description": name_description,
+                  "example": "Daily dashboard email"},
         allow_none=False,
         required=True,
         validate=[Length(1, 150)],
@@ -153,7 +156,8 @@ class ReportSchedulePostSchema(Schema):
     )
     active = fields.Boolean()
     crontab = fields.String(
-        metadata={"description": crontab_description, "example": "*/5 * * * *"},
+        metadata={"description": crontab_description,
+                  "example": "*/5 * * * *"},
         validate=[validate_crontab, Length(1, 1000)],
         allow_none=False,
         required=True,
@@ -177,9 +181,11 @@ class ReportSchedulePostSchema(Schema):
         metadata={"description": creation_method_description},
     )
     dashboard = fields.Integer(required=False, allow_none=True)
-    selected_tabs = fields.List(fields.Integer(), required=False, allow_none=True)
+    selected_tabs = fields.List(
+        fields.Integer(), required=False, allow_none=True)
     database = fields.Integer(required=False)
-    owners = fields.List(fields.Integer(metadata={"description": owners_description}))
+    owners = fields.List(fields.Integer(
+        metadata={"description": owners_description}))
     validator_type = fields.String(
         metadata={"description": validator_type_description},
         validate=validate.OneOf(
@@ -192,12 +198,14 @@ class ReportSchedulePostSchema(Schema):
         validate=[Range(min=1, error=_("Value must be greater than 0"))],
     )
     grace_period = fields.Integer(
-        metadata={"description": grace_period_description, "example": 60 * 60 * 4},
+        metadata={"description": grace_period_description,
+                  "example": 60 * 60 * 4},
         dump_default=60 * 60 * 4,
         validate=[Range(min=1, error=_("Value must be greater than 0"))],
     )
     working_timeout = fields.Integer(
-        metadata={"description": working_timeout_description, "example": 60 * 60 * 1},
+        metadata={"description": working_timeout_description,
+                  "example": 60 * 60 * 1},
         dump_default=60 * 60 * 1,
         validate=[Range(min=1, error=_("Value must be greater than 0"))],
     )
@@ -205,12 +213,18 @@ class ReportSchedulePostSchema(Schema):
     recipients = fields.List(fields.Nested(ReportRecipientSchema))
     report_format = fields.String(
         dump_default=ReportDataFormat.VISUALIZATION,
-        validate=validate.OneOf(choices=tuple(key.value for key in ReportDataFormat)),
+        validate=validate.OneOf(choices=tuple(
+            key.value for key in ReportDataFormat)),
     )
     extra = fields.Dict(
         dump_default=None,
     )
     force_screenshot = fields.Boolean(dump_default=False)
+
+    filename = fields.String(allow_none=True,
+                             required=False,)
+    
+    name_with_date = fields.Boolean()
 
     @validates_schema
     def validate_report_references(  # pylint: disable=unused-argument,no-self-use
@@ -219,7 +233,8 @@ class ReportSchedulePostSchema(Schema):
         if data["type"] == ReportScheduleType.REPORT:
             if "database" in data:
                 raise ValidationError(
-                    {"database": ["Database reference is not allowed on a report"]}
+                    {"database": [
+                        "Database reference is not allowed on a report"]}
                 )
 
 
@@ -227,7 +242,8 @@ class ReportSchedulePutSchema(Schema):
     type = fields.String(
         metadata={"description": type_description},
         required=False,
-        validate=validate.OneOf(choices=tuple(key.value for key in ReportScheduleType)),
+        validate=validate.OneOf(choices=tuple(
+            key.value for key in ReportScheduleType)),
     )
     name = fields.String(
         metadata={"description": name_description},
@@ -286,27 +302,37 @@ class ReportSchedulePutSchema(Schema):
         allow_none=True,
         required=False,
     )
-    validator_config_json = fields.Nested(ValidatorConfigJSONSchema, required=False)
+    validator_config_json = fields.Nested(
+        ValidatorConfigJSONSchema, required=False)
     log_retention = fields.Integer(
         metadata={"description": log_retention_description, "example": 90},
         required=False,
         validate=[Range(min=1, error=_("Value must be greater than 0"))],
     )
     grace_period = fields.Integer(
-        metadata={"description": grace_period_description, "example": 60 * 60 * 4},
+        metadata={"description": grace_period_description,
+                  "example": 60 * 60 * 4},
         required=False,
         validate=[Range(min=1, error=_("Value must be greater than 0"))],
     )
     working_timeout = fields.Integer(
-        metadata={"description": working_timeout_description, "example": 60 * 60 * 1},
+        metadata={"description": working_timeout_description,
+                  "example": 60 * 60 * 1},
         allow_none=True,
         required=False,
         validate=[Range(min=1, error=_("Value must be greater than 0"))],
     )
-    recipients = fields.List(fields.Nested(ReportRecipientSchema), required=False)
+    recipients = fields.List(fields.Nested(
+        ReportRecipientSchema), required=False)
     report_format = fields.String(
         dump_default=ReportDataFormat.VISUALIZATION,
-        validate=validate.OneOf(choices=tuple(key.value for key in ReportDataFormat)),
+        validate=validate.OneOf(choices=tuple(
+            key.value for key in ReportDataFormat)),
     )
     extra = fields.Dict(dump_default=None)
     force_screenshot = fields.Boolean(dump_default=False)
+
+    filename = fields.String(allow_none=True,
+                             required=False,)
+    
+    name_with_date = fields.Boolean()

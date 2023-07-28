@@ -81,6 +81,8 @@ export type AlertObject = {
   last_state?: 'Success' | 'Working' | 'Error' | 'Not triggered' | 'On Grace';
   log_retention?: number;
   name?: string;
+  filename?: string;
+  name_with_date?: boolean;
   owners?: Array<Owner | MetaObject>;
   sql?: string;
   timezone?: string;

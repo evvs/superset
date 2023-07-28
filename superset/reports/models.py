@@ -163,6 +163,10 @@ class ReportSchedule(Model, AuditMixinNullable, ExtraJSONMixin):
 
     extra: ReportScheduleExtra  # type: ignore
 
+    filename = Column(String)
+
+    name_with_date = Column(Boolean, default=False)
+
     def __repr__(self) -> str:
         return str(self.name)
 

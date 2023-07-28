@@ -366,6 +366,11 @@ const inputSpacer = (theme: SupersetTheme) => css`
   margin-right: ${theme.gridUnit * 3}px;
 `;
 
+const inputFilename = (theme: SupersetTheme) =>
+  css`
+    width: 100%;
+  `;
+
 type NotificationAddStatus = 'active' | 'disabled' | 'hidden';
 
 interface NotificationMethodAddProps {
@@ -480,6 +485,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
 
   // Chart metadata
   const [chartVizType, setChartVizType] = useState<string>('');
+
+  const [name_with_date, setNameWithDate] = useState<boolean>(false);
 
   const isEditMode = alert !== null;
   const formatOptionEnabled =
@@ -621,6 +628,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
         contentType === 'dashboard'
           ? DEFAULT_NOTIFICATION_FORMAT
           : reportFormat || DEFAULT_NOTIFICATION_FORMAT,
+      filename: currentAlert?.filename,
+      name_with_date,
     };
 
     if (data.recipients && !data.recipients.length) {
@@ -1055,8 +1064,13 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
           recipients_cc: config.target_cc || '',
           recipients_bcc: config.target_bcc || '',
           options: allowedNotificationMethods,
+          filename: config.filename || '',
         };
       });
+
+      console.log(resource);
+
+      setNameWithDate(resource?.name_with_date ?? false);
 
       setNotificationSettings(settings);
       setNotificationAddState(
@@ -1228,6 +1242,16 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
             <div className="switch-label">{TRANSLATIONS.ACTIVE_TEXT}</div>
           </StyledSwitchContainer>
         </div>
+        <StyledCheckbox
+          data-test="bypass-cache"
+          className="checkbox"
+          checked={name_with_date}
+          onChange={() => {
+            setNameWithDate(!name_with_date);
+          }}
+        >
+          {t('Add a date with a prefix')}
+        </StyledCheckbox>
         <div className="column-section">
           {!isReport && (
             <div className="column condition">
@@ -1486,6 +1510,16 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
                     )}
                   </StyledRadioGroup>
                 </div>
+                <StyledInputContainer>
+                  <input
+                    type="text"
+                    name="filename"
+                    value={currentAlert ? currentAlert.filename : ''}
+                    placeholder={t('Filename')}
+                    onChange={onTextChange}
+                    css={inputFilename}
+                  />
+                </StyledInputContainer>
               </>
             )}
             {(isReport || contentType === 'dashboard') && (

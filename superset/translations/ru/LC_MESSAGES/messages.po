@@ -19731,3 +19731,9 @@ msgstr "Копия"
 
 msgid "Bcc"
 msgstr "Скрытая копия"
+
+msgid "Filename"
+msgstr "Имя файла"
+
+msgid "Add a date with a prefix"
+msgstr "Добавить дату префиксом"

@@ -368,8 +368,10 @@ class BaseReportState:
             if error_text:
                 return NotificationContent(
                     name=self._report_schedule.name, # manzana_custom
+                    filename=self._report_schedule.filename,
                     text=error_text,
                     header_data=header_data,
+                    name_with_date=self._report_schedule.name_with_date
                 )
 
         if (
@@ -380,13 +382,13 @@ class BaseReportState:
 
         if self._report_schedule.chart:
             name = (
-                f"{self._report_schedule.name}: "
-                f"{self._report_schedule.chart.slice_name}"
+                f"{self._report_schedule.name}"
+                # f"{self._report_schedule.chart.slice_name}"
             )
         else:
             name = (
-                f"{self._report_schedule.name}: "
-                f"{self._report_schedule.dashboard.dashboard_title}"
+                f"{self._report_schedule.name}"
+                # f"{self._report_schedule.dashboard.dashboard_title}"
             )
 
         return NotificationContent(
@@ -398,6 +400,8 @@ class BaseReportState:
             data_format=self._report_schedule.report_format,
             embedded_data=embedded_data,
             header_data=header_data,
+            filename=self._report_schedule.filename,
+            name_with_date=self._report_schedule.name_with_date
         )
 
     def _send(
@@ -467,7 +471,9 @@ class BaseReportState:
             self._execution_id,
         )
         notification_content = NotificationContent(
-            name=name, text=message, header_data=header_data
+            name=name, text=message, header_data=header_data,
+            filename=self._report_schedule.filename,
+            name_with_date=self._report_schedule.name_with_date
         )
 
         # filter recipients to recipients who are also owners
