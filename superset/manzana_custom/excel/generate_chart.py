@@ -38,11 +38,11 @@ class GenerateChart:
             "pie": self.__generate_pie_chart,
             "donut": self.__generate_doughnut_chart,
             "echarts_timeseries_bar": self.__generate_column_chart,
-            "bar": self.__generate_column_chart,  # dont use it old type
-            "dist_bar": self.__generate_column_chart,  # dont use it old type
+            "bar": self.__generate_column_chart,  # don't use it old type
+            "dist_bar": self.__generate_column_chart,  # don't use it old type
             "echarts_timeseries_line": self.__generate_line_chart,
             "line": self.__generate_line_chart,
-            # "dual_line": self.__generate_dual_line_chart, # need fix
+            "dual_line": self.__generate_dual_line_chart,  # need fix
             "echarts_area": self.__generate_area_chart,
             "echarts_timeseries_scatter": self.__generate_scatter_chart,
             "radar": self.__generate_radar_chart,
@@ -51,7 +51,7 @@ class GenerateChart:
         if chart_method:
             chart_method()
 
-    def _generate_categories_values(self, col_letter='B'):
+    def __generate_categories_values(self, col_letter='B'):
         """Generates categories and values for Excel charts."""
         categories = f'={self.sheet_name}!A2:A{self.num_rows+1}'
         values = f'={self.sheet_name}!{col_letter}2:{col_letter}{self.num_rows+1}'
@@ -61,7 +61,7 @@ class GenerateChart:
         """Generates a pie chart."""
         try:
             chart = self.workbook.add_chart({'type': 'pie'})
-            categories, values = self._generate_categories_values()
+            categories, values = self.__generate_categories_values()
             chart.add_series({
                 "name": self.slice_name,
                 'categories': categories,
@@ -76,7 +76,7 @@ class GenerateChart:
         """Generates a doughnut chart."""
         try:
             chart = self.workbook.add_chart({'type': 'doughnut'})
-            categories, values = self._generate_categories_values()
+            categories, values = self.__generate_categories_values()
             chart.add_series({
                 "name": self.slice_name,
                 'categories': categories,
@@ -109,13 +109,14 @@ class GenerateChart:
 
     def __generate_dual_line_chart(self):
         """Generates a dual line chart."""
+
         try:
             chart = self.workbook.add_chart({'type': 'line'})
-            categories = self._generate_categories_values()[0]
+            categories = self.__generate_categories_values()[0]
 
             for i in range(1, self.df.shape[1]):
                 col_letter = col_num_to_letter(i+1)
-                _, values = self._generate_categories_values(col_letter)
+                _, values = self.__generate_categories_values(col_letter)
                 chart.add_series({
                     "name": str(self.df.columns[i]),
                     'categories': categories,
@@ -124,9 +125,9 @@ class GenerateChart:
                 })
 
             chart.set_title({"name": self.slice_name})
-            chart.set_x_axis({"name": "Days"})
-            chart.set_y_axis({"name": "Population", "major_gridlines": {"visible": 0}})
-            chart.set_y2_axis({"name": "Laser wounds"})
+            chart.set_x_axis({"name": self.df.columns[0]})
+            chart.set_y_axis({"name": self.df.columns[1]})
+            chart.set_y2_axis({"name": self.df.columns[2]})
             chart.set_legend({"position": "right"})
             self.worksheet.insert_chart(self.cell_for_rendering, chart, {
                 "x_offset": 25, "y_offset": 10})
@@ -138,11 +139,11 @@ class GenerateChart:
         """Generates a chart of the specified type and style."""
         try:
             chart = self.workbook.add_chart({'type': chart_type})
-            categories = self._generate_categories_values()[0]
+            categories = self.__generate_categories_values()[0]
 
             for i in range(1, self.df.shape[1]):
                 col_letter = col_num_to_letter(i+1)
-                _, values = self._generate_categories_values(col_letter)
+                _, values = self.__generate_categories_values(col_letter)
                 chart.add_series({
                     "name": str(self.df.columns[i]),
                     'categories': categories,

@@ -105,6 +105,11 @@ class QueryContextProcessor:
         self, query_obj: QueryObject, force_cached: Optional[bool] = False
     ) -> Dict[str, Any]:
         """Handles caching around the df payload retrieval"""
+        form_data = self._query_context.form_data
+        if form_data:
+            df_viz = form_data.get("viz_type")
+            if df_viz == "dual_line":
+                query_obj._set_is_timeseries(True)
         cache_key = self.query_cache_key(query_obj)
         timeout = self.get_cache_timeout()
         force_query = self._query_context.force or timeout == -1
@@ -159,7 +164,8 @@ class QueryContextProcessor:
             ]
             for col in cache.df.columns.values
         }
-        cache.df.columns = [unescape_separator(col) for col in cache.df.columns.values]
+        cache.df.columns = [unescape_separator(
+            col) for col in cache.df.columns.values]
 
         return {
             "cache_key": cache_key,
@@ -320,7 +326,8 @@ class QueryContextProcessor:
         rv_dfs: List[pd.DataFrame] = [df]
 
         time_offsets = query_object.time_offsets
-        outer_from_dttm, outer_to_dttm = get_since_until_from_query_object(query_object)
+        outer_from_dttm, outer_to_dttm = get_since_until_from_query_object(
+            query_object)
         if not outer_from_dttm or not outer_to_dttm:
             raise QueryObjectValidationError(
                 _(
@@ -344,7 +351,8 @@ class QueryContextProcessor:
                     offset,
                     outer_from_dttm,
                 )
-                query_object_clone.to_dttm = get_past_or_future(offset, outer_to_dttm)
+                query_object_clone.to_dttm = get_past_or_future(
+                    offset, outer_to_dttm)
 
                 xaxis_label = get_xaxis_label(query_object.columns)
                 query_object_clone.granularity = (
@@ -364,7 +372,8 @@ class QueryContextProcessor:
             ]
 
             # `offset` is added to the hash function
-            cache_key = self.query_cache_key(query_object_clone, time_offset=offset)
+            cache_key = self.query_cache_key(
+                query_object_clone, time_offset=offset)
             cache = QueryCacheManager.get(
                 cache_key, CacheRegion.DATA, query_context.force
             )
@@ -383,7 +392,8 @@ class QueryContextProcessor:
                     query_object_clone_dct.get("metrics", [])
                 )
             }
-            join_keys = [col for col in df.columns if col not in metrics_mapping.keys()]
+            join_keys = [
+                col for col in df.columns if col not in metrics_mapping.keys()]
 
             if isinstance(self._qc_datasource, Query):
                 result = self._qc_datasource.exc_query(query_object_clone_dct)
@@ -408,10 +418,12 @@ class QueryContextProcessor:
                 )
 
                 # 2. rename extra query columns
-                offset_metrics_df = offset_metrics_df.rename(columns=metrics_mapping)
+                offset_metrics_df = offset_metrics_df.rename(
+                    columns=metrics_mapping)
 
                 # 3. set time offset for index
-                index = (get_base_axis_labels(query_object.columns) or [DTTM_ALIAS])[0]
+                index = (get_base_axis_labels(
+                    query_object.columns) or [DTTM_ALIAS])[0]
                 if not dataframe_utils.is_datetime_series(offset_metrics_df.get(index)):
                     raise QueryObjectValidationError(
                         _(
@@ -455,7 +467,8 @@ class QueryContextProcessor:
             columns = list(df.columns)
             verbose_map = self._qc_datasource.data.get("verbose_map", {})
             if verbose_map:
-                df.columns = [verbose_map.get(column, column) for column in columns]
+                df.columns = [verbose_map.get(column, column)
+                              for column in columns]
 
             result = None
             if self._query_context.result_format == ChartDataResultFormat.CSV:
@@ -463,7 +476,8 @@ class QueryContextProcessor:
                     df, index=include_index, **config["CSV_EXPORT"]
                 )
             elif self._query_context.result_format == ChartDataResultFormat.XLSX:
-                result = excel.df_to_excel(df,  index=False, slice=self._query_context.slice_, **config["EXCEL_EXPORT"]) # manzana custom
+                result = excel.df_to_excel(
+                    df,  index=False, slice=self._query_context.slice_, **config["EXCEL_EXPORT"])  # manzana custom
             return result or ""
 
         return df.to_dict(orient="records")
@@ -528,7 +542,8 @@ class QueryContextProcessor:
         :param query_obj:
         :return:
         """
-        annotation_data: Dict[str, Any] = self.get_native_annotation_data(query_obj)
+        annotation_data: Dict[str,
+                              Any] = self.get_native_annotation_data(query_obj)
         for annotation_layer in [
             layer
             for layer in query_obj.annotation_layers
@@ -582,7 +597,8 @@ class QueryContextProcessor:
         if not chart:
             raise QueryObjectValidationError(_("The chart does not exist"))
         if not chart.datasource:
-            raise QueryObjectValidationError(_("The chart datasource does not exist"))
+            raise QueryObjectValidationError(
+                _("The chart datasource does not exist"))
         form_data = chart.form_data.copy()
         form_data.update(annotation_layer.get("overrides", {}))
         try:
@@ -595,7 +611,8 @@ class QueryContextProcessor:
             payload = viz_obj.get_payload()
             return payload["data"]
         except SupersetException as ex:
-            raise QueryObjectValidationError(error_msg_from_exception(ex)) from ex
+            raise QueryObjectValidationError(
+                error_msg_from_exception(ex)) from ex
 
     def raise_for_access(self) -> None:
         """
@@ -609,4 +626,5 @@ class QueryContextProcessor:
         if self._qc_datasource.type == DatasourceType.QUERY:
             security_manager.raise_for_access(query=self._qc_datasource)
         else:
-            security_manager.raise_for_access(query_context=self._query_context)
+            security_manager.raise_for_access(
+                query_context=self._query_context)
