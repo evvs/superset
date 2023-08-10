@@ -77,6 +77,7 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
 
                     if in_column_config:
                         date_format_from_request = in_column_config.get("d3TimeFormat")
+                        print("FROM REQUEST!!!!", date_format_from_request, flush=True)
 
                         if date_format_from_request and date_format_from_request != "smart_date":
                             date_format_by_column_name[df[column].name] = date_format_from_request
@@ -105,27 +106,25 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
 
             if value in df.columns:
                 column_data = df[value]
-                
+
                 if isinstance(column_data, pd.DataFrame):  # If multi-index column
                     column_data = column_data.iloc[:, 0]
-                if isinstance(column_data, pd.Series):
-                    if column_data.dtype == 'object':
-                        date_format_from_dict = date_format_by_column_name.get(column_data.name, '')
-                        # Filter the data that can potentially be converted
-                        valid_dates_mask = column_data.apply(lambda x: is_valid_date(str(x), date_format_from_dict))
-                        
-                        # Convert only valid dates
-                        try:
-                            excel_format = request_to_excel_format.get(date_format_from_dict, 'd mmmm yyyy')
-                            date_format = workbook.add_format({'num_format': excel_format})
-                            
-                            column_data[valid_dates_mask] = pd.to_datetime(column_data[valid_dates_mask], format=date_format_from_dict)
-                            
-                            df[value] = column_data  # Update the main DataFrame
-                            worksheet.set_column(col_num, col_num, None, date_format)
-                        except BaseException as err:
-                            logger.error("ERROR WITH CONVERTING pd.to_datetime")
-                            logger.error(err)
+                if isinstance(column_data, pd.Series) and column_data.dtype == 'object':
+                    date_format_from_dict = date_format_by_column_name.get(column_data.name, '')
+                    valid_dates_mask = column_data.apply(lambda x: is_valid_date(str(x), date_format_from_dict))
+                    try:
+                        # Convert only valid dates to datetime64 format first
+                        column_data[valid_dates_mask] = pd.to_datetime(column_data[valid_dates_mask], format=date_format_from_dict)
+                        # Convert datetime64 format to Excel's datetime format
+                        excel_format = request_to_excel_format.get(date_format_from_dict, 'd mmmm yyyy')
+                        date_format = workbook.add_format({'num_format': excel_format})
+                        # Apply date formatting in Excel
+                        for row_num, date_val in enumerate(column_data):
+                            if valid_dates_mask.iloc[row_num]:
+                                worksheet.write_datetime(row_num + 1, col_num, date_val, date_format)  # +1 to skip header
+                    except BaseException as err:
+                        logger.error("ERROR WITH CONVERTING pd.to_datetime")
+                        logger.error(err)
 
         if from_report:  # manzana custom
             worksheet.write(0, len(df.columns.values), None,

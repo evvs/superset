@@ -172,13 +172,14 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
 
         if self._content.data and self._content.data_format:
             attachment = {
-                __(
-                    self._content.filename
-                ): self._content.data
-            } if self._content.filename else {
+            #     __(
+            #         self._content.filename,
+            #          format=self._content.data_format.lower()
+            #     ): self._content.data
+            # } if self._content.filename else {
                 __(
                     "%(name)s.%(format)s",
-                    name=self._content.name,
+                    name= self._content.filename if self._content.filename else self._content.name ,
                     format=self._content.data_format.lower(),
                 ): self._content.data
             }
@@ -191,7 +192,7 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
 
     def _get_subject(self) -> str:
         return __(
-            "%(prefix)s %(title)s",
+            "%(title)s %(prefix)s",
             prefix=date.today().strftime("%d.%m.%Y") if self._content.name_with_date else '',
             title=self._content.name,
             # self._content.name,
