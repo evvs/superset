@@ -373,12 +373,19 @@ class ChartDataRestApi(ChartRestApi):
 
             if len(result["queries"]) == 1:
                 # return single query results
-                data = result["queries"][0]["data"]
-                slice_name = db.session.query(Slice).get(form_data.get("slice_id")).slice_name # manzana_custom
-                if is_csv_format:
-                    return CsvResponse(data, headers=generate_download_headers("csv", slice_name)) # manzana_custom
+                try:
+                    data = result["queries"][0]["data"]
+                    slice_name = db.session.query(Slice).get(form_data.get("slice_id")).slice_name # manzana_custom
+                    if is_csv_format:
+                        return CsvResponse(data, headers=generate_download_headers("csv", slice_name)) # manzana_custom
 
-                return XlsxResponse(data, headers=generate_download_headers("xlsx", slice_name)) # manzana_custom
+                    return XlsxResponse(data, headers=generate_download_headers("xlsx", slice_name)) # manzana_custom
+                except:
+                    data = result["queries"][0]["data"]
+                    if is_csv_format:
+                        return CsvResponse(data, headers=generate_download_headers("csv"))
+
+                    return XlsxResponse(data, headers=generate_download_headers("xlsx"))
 
             # return multi-query results bundled as a zip file
             def _process_data(query_data: Any) -> Any:
