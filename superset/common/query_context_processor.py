@@ -477,7 +477,7 @@ class QueryContextProcessor:
                 )
             elif self._query_context.result_format == ChartDataResultFormat.XLSX:
                 result = excel.df_to_excel(
-                    df,  index=False, slice=self._query_context.slice_, **config["EXCEL_EXPORT"])  # manzana custom
+                    df,  index=False, slice=self._query_context.slice_, datasource=self._query_context.datasource, **config["EXCEL_EXPORT"])  # manzana custom  # manzana custom
             return result or ""
 
         return df.to_dict(orient="records")

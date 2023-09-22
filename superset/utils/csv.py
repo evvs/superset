@@ -109,6 +109,7 @@ def get_chart_dataframe(
         return None
 
     result = simplejson.loads(content.decode("utf-8"))
+
     # need to convert float value to string to show full long number
     pd.set_option("display.float_format", lambda x: str(x))
     df = pd.DataFrame.from_dict(result["result"][0]["data"])
@@ -137,4 +138,5 @@ def get_chart_dataframe(
         tuple(indexname) if isinstance(indexname, list) else (indexname,)
         for indexname in result["result"][0]["indexnames"]
     )
+
     return df

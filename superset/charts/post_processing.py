@@ -25,6 +25,7 @@ on Explore.
 In order to do that, we reproduce the post-processing in Python
 for these chart types.
 """
+from superset import app
 
 from io import StringIO
 from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING, Union
@@ -39,6 +40,9 @@ from superset.utils.core import (
     get_column_names,
     get_metric_names,
 )
+
+from superset.manzana_custom.excel.custom_total_for_pivot import CustomTotalForPivot
+import numpy as np
 
 if TYPE_CHECKING:
     from superset.connectors.base.models import BaseDatasource
@@ -71,6 +75,7 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
     apply_metrics_on_rows: bool = False,
 ) -> pd.DataFrame:
     metric_name = __("Total (%(aggfunc)s)", aggfunc=aggfunc)
+    columns = [col for col in columns if col in df.columns]
 
     if transpose_pivot:
         rows, columns = columns, rows
@@ -134,7 +139,10 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
     # compute fractions, if needed
     if aggfunc.endswith(" as Fraction of Total"):
         total = df.sum().sum()
-        df = df.astype(total.dtypes) / total
+        if isinstance(total, (pd.Series, pd.DataFrame)):
+            df = df.astype(total.dtypes) / total
+        else:
+            df /= total
     elif aggfunc.endswith(" as Fraction of Columns"):
         total = df.sum(axis=axis["rows"])
         df = df.astype(total.dtypes).div(total, axis=axis["columns"])
@@ -148,7 +156,7 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
     if not isinstance(df.columns, pd.MultiIndex):
         df.columns = pd.MultiIndex.from_tuples([(str(i),) for i in df.columns])
 
-    if show_rows_total:
+    if show_rows_total and aggfunc not in aggfuncs_without_axis_argument:
         # add subtotal for each group and overall total; we start from the
         # overall group, and iterate deeper into subgroups
         groups = df.columns
@@ -161,9 +169,10 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
                 total = metric_name if level == 0 else __("Subtotal")
                 subtotal_name = tuple([*subgroup, total, *([""] * depth)])
                 # insert column after subgroup
-                df.insert(int(slice_.stop), subtotal_name, subtotal)
+                if subtotal_name not in df.columns:
+                    df.insert(int(slice_.stop), subtotal_name, subtotal)
 
-    if rows and show_columns_total:
+    if rows and show_columns_total and aggfunc not in aggfuncs_without_axis_argument:
         # add subtotal for each group and overall total; we start from the
         # overall group, and iterate deeper into subgroups
         groups = df.index
@@ -171,6 +180,7 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
             subgroups = {group[:level] for group in groups}
             for subgroup in subgroups:
                 slice_ = df.index.get_loc(subgroup)
+                df.replace("NULL", np.nan, inplace=True)
                 subtotal = pivot_v2_aggfunc_map[aggfunc](
                     df.iloc[slice_, :].apply(pd.to_numeric), axis=0
                 )
@@ -187,6 +197,10 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
     if apply_metrics_on_rows:
         df = df.T
 
+    if (show_rows_total and aggfunc in aggfuncs_without_axis_argument) or (show_columns_total and aggfunc in aggfuncs_without_axis_argument):
+        custom_total = CustomTotalForPivot(df)
+        pivoted_df = custom_total.generate(aggfunc, show_rows_total, show_columns_total)
+        df = pivoted_df
     return df
 
 
@@ -195,7 +209,6 @@ def list_unique_values(series: pd.Series) -> str:
     List unique values in a series.
     """
     return ", ".join(set(str(v) for v in pd.Series.unique(series)))
-
 
 pivot_v2_aggfunc_map = {
     "Count": pd.Series.count,
@@ -210,8 +223,10 @@ pivot_v2_aggfunc_map = {
     ),
     "Minimum": pd.Series.min,
     "Maximum": pd.Series.max,
-    "First": lambda series: series[:1],
-    "Last": lambda series: series[-1:],
+    # "First": lambda series: series[:1],
+    # "Last": lambda series: series[-1:],
+    "First": pd.Series.min,
+    "Last": pd.Series.max,
     "Sum as Fraction of Total": pd.Series.sum,
     "Sum as Fraction of Rows": pd.Series.sum,
     "Sum as Fraction of Columns": pd.Series.sum,
@@ -220,6 +235,8 @@ pivot_v2_aggfunc_map = {
     "Count as Fraction of Columns": pd.Series.count,
 }
 
+
+aggfuncs_without_axis_argument = ["Count", "Count Unique Values", "List Unique Values", "Sample Variance", "First", "Last","Sample Standard Deviation", "Count as Fraction of Total", "Count as Fraction of Rows", "Count as Fraction of Columns"]
 
 def pivot_table_v2(
     df: pd.DataFrame,
@@ -343,7 +360,7 @@ def apply_post_process(
         if query["result_format"] == ChartDataResultFormat.JSON:
             df = pd.DataFrame.from_dict(data)
         elif query["result_format"] == ChartDataResultFormat.CSV:
-            df = pd.read_csv(StringIO(data))
+            df = pd.read_csv(StringIO(data), app.config["CSV_EXPORT"]["sep"])
 
         # convert all columns to verbose (label) name
         if datasource:
@@ -376,7 +393,7 @@ def apply_post_process(
             query["data"] = processed_df.to_dict()
         elif query["result_format"] == ChartDataResultFormat.CSV:
             buf = StringIO()
-            processed_df.to_csv(buf)
+            processed_df.to_csv(buf, app.config["CSV_EXPORT"]["sep"])
             buf.seek(0)
             query["data"] = buf.getvalue()
 

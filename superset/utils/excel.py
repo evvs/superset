@@ -5,16 +5,54 @@ import pandas as pd
 from typing import Union
 from superset.models.slice import Slice
 from superset.manzana_custom.excel.generate_chart import GenerateChart
+from superset.manzana_custom.excel.pivot import is_pivot
+from superset.connectors.base.models import BaseDatasource
+
+from superset.charts.post_processing import pivot_table_v2
+from superset.utils.core import get_column_names
 
 import logging
 import datetime
 import numpy as np
+
+
 def is_valid_date(date_string: str, date_format: str) -> bool:
     try:
         datetime.datetime.strptime(date_string, date_format)
         return True
     except ValueError:
         return False
+
+
+def translate_aggfunc_name(col_name):
+    if not isinstance(col_name, str):
+        return col_name
+    translations = {
+    "Count unique values": "Количество уникальных значений",
+    "List unique values": "Список уникальных значений",
+    "Average": "Среднее",
+    "Median": "Медиана",
+    "Sample variance": "Дисперсия",
+    "Sample standard deviation": "Стандартное отклонение",
+    "Minimum": "Минимум",
+    "Maximum": "Максимум",
+    "First": "Первый",
+    "Last": "Последний",
+    "Sum as fraction of columns": "Сумма как доля столбцов",
+    "Sum as fraction of rows": "Сумма как доля строк",
+    "Sum as fraction of total": "Сумма как доля целого",
+    "Count as fraction of columns": "Количество, как доля от столбцов",
+    "Count as fraction of rows": "Количество, как доля от строк",
+    "Count as fraction of total": "Количество, как доля от целого",
+    "Subtotal": "Подытог",
+    "Sum": "Сумма",
+    "Count": "Количество",
+    "NaT": ""
+    }
+    for key, value in translations.items():
+        col_name = col_name.replace(key, value)
+    return col_name.strip()
+
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +67,40 @@ request_to_excel_format = {
     '%H:%M:%S': 'hh:mm:ss',
 }
 
-# Sample usage:
-# request_format = '%d.%m.%Y'
-# excel_format = request_to_excel_format.get(request_format, 'd mmmm yyyy')  # default to 'd mmmm yyyy' for 'smart_date'
-
-def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice: Union[Slice, None] = None, **kwargs: Any) -> bytes:
+def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice: Union[Slice, None] = None,
+                datasource: Union[BaseDatasource, None] = None,
+                **kwargs: Any) -> bytes:
     output = io.BytesIO()
     date_format_by_column_name = {}
-    # Normalize and format datetime columns
+
+    if is_pivot(slice):
+
+        if (not from_report):
+            df = pivot_table_v2(df, slice.form_data, datasource)
+
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = [' '.join(map(str, col)).strip()
+                          for col in df.columns.values]
+
+        groupbyRows = slice.form_data.get("groupbyRows")
+        if groupbyRows and len(groupbyRows) == 1:
+            verbose_map = datasource.data["verbose_map"] if datasource else None
+            df = df.reset_index().rename(
+                columns={"level_0": get_column_names(groupbyRows, verbose_map)[0]}).rename(
+                    columns={"index": get_column_names(
+                        groupbyRows, verbose_map)[0]}
+            )
+        if bool(slice.form_data.get("rowTotals")):
+            last_col_name = df.columns[-1]
+            translated_col_name = translate_aggfunc_name(last_col_name)
+            df.rename(columns={last_col_name: translated_col_name}, inplace=True)
+        if bool(slice.form_data.get("colTotals")):
+            last_row_values = df.iloc[-1, :]
+    
+            translated_values = last_row_values.map(translate_aggfunc_name)
+    
+            df.iloc[-1, :] = translated_values
+
     if slice:
         try:
             column_config = slice.form_data.get("column_config")
@@ -51,7 +115,8 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                         mapped_field = ''
                         source_for_mapping = []
                         if slice.form_data.get("query_mode") == 'aggregate':
-                            source_for_mapping = slice.form_data.get("groupby", [])
+                            source_for_mapping = slice.form_data.get(
+                                "groupby", [])
                         elif slice.form_data.get("query_mode") == 'raw':
                             source_for_mapping = slice.form_data.get(
                                 "all_columns", [])
@@ -60,13 +125,15 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                         in_column_config = column_config.get(mapped_field)
 
                     if in_column_config:
-                        date_format_from_request = in_column_config.get("d3TimeFormat")
-                        print("FROM REQUEST!!!!", date_format_from_request, flush=True)
+                        date_format_from_request = in_column_config.get(
+                            "d3TimeFormat")
 
                         if date_format_from_request and date_format_from_request != "smart_date":
-                            date_format_by_column_name[df[column].name] = date_format_from_request
+                            date_format_by_column_name[df[column]
+                                                       .name] = date_format_from_request
                             df[column] = pd.to_datetime(df[column])
-                            df[column] = df[column].dt.strftime(date_format_from_request)
+                            df[column] = df[column].dt.strftime(
+                                date_format_from_request)
         except Exception as err:
             logger.error(f"ERROR WHEN TRYING FORMAT DATE for column: {column}")
             logger.error(
@@ -74,8 +141,14 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
             logger.error(err)
 
     for column in df.columns:
-        if str(df[column].dtype).startswith('datetime64[ns'):
+        dtype = getattr(df[column], 'dtype', None)
+        if dtype and str(dtype).startswith('datetime64[ns'):
             df[column] = df[column].dt.tz_localize(None)
+
+    # remove NULL from dataframe before writing to Excel
+    df.replace("NULL", np.nan, inplace=True)
+
+    df = df.applymap(lambda x: x[0] if isinstance(x, tuple) else x)
 
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         df.to_excel(writer, sheet_name=sheet_name, **kwargs)
@@ -98,18 +171,24 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                 if isinstance(column_data, pd.DataFrame):  # If multi-index column
                     column_data = column_data.iloc[:, 0]
                 if isinstance(column_data, pd.Series) and column_data.dtype == 'object':
-                    date_format_from_dict = date_format_by_column_name.get(column_data.name, '')
-                    valid_dates_mask = column_data.apply(lambda x: is_valid_date(str(x), date_format_from_dict))
+                    date_format_from_dict = date_format_by_column_name.get(
+                        column_data.name, '')
+                    valid_dates_mask = column_data.apply(
+                        lambda x: is_valid_date(str(x), date_format_from_dict))
                     try:
                         # Convert only valid dates to datetime64 format first
-                        column_data[valid_dates_mask] = pd.to_datetime(column_data[valid_dates_mask], format=date_format_from_dict)
+                        column_data[valid_dates_mask] = pd.to_datetime(
+                            column_data[valid_dates_mask], format=date_format_from_dict)
                         # Convert datetime64 format to Excel's datetime format
-                        excel_format = request_to_excel_format.get(date_format_from_dict, 'd mmmm yyyy')
-                        date_format = workbook.add_format({'num_format': excel_format})
+                        excel_format = request_to_excel_format.get(
+                            date_format_from_dict, 'd mmmm yyyy')
+                        date_format = workbook.add_format(
+                            {'num_format': excel_format})
                         # Apply date formatting in Excel
                         for row_num, date_val in enumerate(column_data):
                             if valid_dates_mask.iloc[row_num]:
-                                worksheet.write_datetime(row_num + 1, col_num, date_val, date_format)  # +1 to skip header
+                                worksheet.write_datetime(
+                                    row_num + 1, col_num, date_val, date_format)  # +1 to skip header
                     except BaseException as err:
                         logger.error("ERROR WITH CONVERTING pd.to_datetime")
                         logger.error(err)
@@ -134,5 +213,4 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                 except BaseException as err:
                     logger.error("ERROR WITH GENERATING CHART")
                     logger.error(err)
-
     return output.getvalue()
