@@ -281,7 +281,7 @@ class BaseReportState:
 
         try:
             logger.info("Getting chart from %s as user %s", url, user.username)
-            dataframe = get_chart_dataframe(chart_url=url, auth_cookies=auth_cookies)
+            dataframe = get_chart_dataframe(chart_url=url, auth_cookies=auth_cookies, slice=self._report_schedule.chart)
         except SoftTimeLimitExceeded as ex:
             raise ReportScheduleDataFrameTimeout() from ex
         except Exception as ex:

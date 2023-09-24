@@ -15,7 +15,6 @@ import logging
 import datetime
 import numpy as np
 
-
 def is_valid_date(date_string: str, date_format: str) -> bool:
     try:
         datetime.datetime.strptime(date_string, date_format)
@@ -53,6 +52,36 @@ def translate_aggfunc_name(col_name):
         col_name = col_name.replace(key, value)
     return col_name.strip()
 
+
+def format_number(number, d3NumberFormat):
+    if np.isnan(number):
+        return ''
+    if d3NumberFormat == ',d':
+        return '{:,.0f}'.format(number)
+    elif d3NumberFormat == '.1s':
+        return '{:.1e}'.format(number).replace('e', ' ').split()[0]
+    elif d3NumberFormat == '.3s':
+        return '{:.3e}'.format(number).replace('e', ' ').split()[0]
+    elif d3NumberFormat == ',.1%':
+        return '{:,.1%}'.format(number)
+    elif d3NumberFormat == '.2%':
+        return '{:.2%}'.format(number)
+    elif d3NumberFormat == '.3%':
+        return '{:.3%}'.format(number)
+    elif d3NumberFormat == '.4r':
+        return '{:.4f}'.format(number).rstrip('0').rstrip('.')
+    elif d3NumberFormat == ',.1f':
+        return '{:,.1f}'.format(number)
+    elif d3NumberFormat == ',.2f':
+        return '{:,.2f}'.format(number)
+    elif d3NumberFormat == ',.3f':
+        return '{:,.3f}'.format(number)
+    elif d3NumberFormat == '+,':
+        return '{:+,.0f}'.format(number)
+    elif d3NumberFormat == '$,.2f':
+        return '${:,.2f}'.format(number)
+    else:
+        raise ValueError(f"Unsupported format: {d3NumberFormat}")
 
 logger = logging.getLogger(__name__)
 
@@ -110,23 +139,18 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                         column, tuple) else column[0]
                     in_column_config = column_config.get(
                         col_name)
+                    
+
 
                     if not in_column_config:
-                        mapped_field = ''
-                        source_for_mapping = []
-                        if slice.form_data.get("query_mode") == 'aggregate':
-                            source_for_mapping = slice.form_data.get(
-                                "groupby", [])
-                        elif slice.form_data.get("query_mode") == 'raw':
-                            source_for_mapping = slice.form_data.get(
-                                "all_columns", [])
-                        if len(source_for_mapping):
-                            mapped_field = source_for_mapping[idx]
-                        in_column_config = column_config.get(mapped_field)
-
+                        verbose_map = datasource.data["verbose_map"]
+                        if verbose_map:
+                            verbosed_name = next((key for key, value in verbose_map.items() if value == col_name), None)
+                            in_column_config = column_config.get(verbosed_name)
                     if in_column_config:
                         date_format_from_request = in_column_config.get(
                             "d3TimeFormat")
+                        number_format_from_request = in_column_config.get("d3NumberFormat")
 
                         if date_format_from_request and date_format_from_request != "smart_date":
                             date_format_by_column_name[df[column]
@@ -134,10 +158,13 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                             df[column] = pd.to_datetime(df[column])
                             df[column] = df[column].dt.strftime(
                                 date_format_from_request)
+                        elif number_format_from_request and number_format_from_request != "my_format":
+                            df[column] = df[column].apply(lambda x: format_number(x, number_format_from_request))
         except Exception as err:
             logger.error(f"ERROR WHEN TRYING FORMAT DATE for column: {column}")
             logger.error(
-                f"Data type of the column before conversion: {df[column].dtype}")
+                # f"Data type of the column before conversion: {df[column].dtype}") maybe check later
+                f"Data type of the column before conversion: {df[column]}")
             logger.error(err)
 
     for column in df.columns:

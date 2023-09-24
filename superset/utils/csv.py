@@ -26,6 +26,10 @@ import simplejson
 
 from superset.utils.core import GenericDataType
 
+from typing import Union
+# from superset.models.slice import Slice
+# from superset.manzana_custom.excel.pivot import is_pivot
+
 logger = logging.getLogger(__name__)
 
 negative_number_re = re.compile(r"^-[0-9.]+$")
@@ -100,7 +104,8 @@ def get_chart_csv_data(
 
 
 def get_chart_dataframe(
-    chart_url: str, auth_cookies: Optional[Dict[str, str]] = None
+    chart_url: str, auth_cookies: Optional[Dict[str, str]] = None,
+    slice: Union[Any, None] = None
 ) -> Optional[pd.DataFrame]:
     # Disable all the unnecessary-lambda violations in this function
     # pylint: disable=unnecessary-lambda
@@ -129,11 +134,31 @@ def get_chart_dataframe(
     except BaseException as err:
         logger.error(err)
 
-    # rebuild hierarchical columns and index
-    df.columns = pd.MultiIndex.from_tuples(
-        tuple(colname) if isinstance(colname, list) else (colname,)
-        for colname in result["result"][0]["colnames"]
-    )
+    if (slice and not slice.form_data.get("viz_type") == 'pivot_table_v2' and not slice.form_data.get("viz_type") == "pivot_table"):
+        colnames = result["result"][0]["colnames"]
+
+        temp_data = {}
+        for col in df.columns:
+            temp_data[col] = df[col].tolist()
+
+        if len(df.columns) > len(colnames):
+            df = df.iloc[:, :len(colnames)]
+
+        while len(df.columns) < len(colnames):
+            df[f"extra_col_{len(df.columns)}"] = np.nan
+
+        df.columns = colnames
+
+        for col, values in temp_data.items():
+            if col in df.columns:
+                df[col] = values
+    else:
+        df.columns = pd.MultiIndex.from_tuples(
+            tuple(colname) if isinstance(colname, list) else (colname,)
+            for colname in result["result"][0]["colnames"]
+        )
+
+
     df.index = pd.MultiIndex.from_tuples(
         tuple(indexname) if isinstance(indexname, list) else (indexname,)
         for indexname in result["result"][0]["indexnames"]
