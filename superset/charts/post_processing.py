@@ -236,7 +236,7 @@ pivot_v2_aggfunc_map = {
 }
 
 
-aggfuncs_without_axis_argument = ["Count", "Count Unique Values", "List Unique Values", "Sample Variance", "First", "Last","Sample Standard Deviation", "Count as Fraction of Total", "Count as Fraction of Rows", "Count as Fraction of Columns"]
+aggfuncs_without_axis_argument = ["Count", "Count Unique Values", "List Unique Values", "Sample Variance", "Sample Standard Deviation", "Count as Fraction of Total", "Count as Fraction of Rows", "Count as Fraction of Columns"]
 
 def pivot_table_v2(
     df: pd.DataFrame,

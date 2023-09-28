@@ -15,6 +15,8 @@ class CustomTotalForPivot:
             "Count as Fraction of Total": self.generate_count_as_fraction_of_total,
             "Count as Fraction of Rows": self.generate_count_as_fraction_of_rows,
             "Count as Fraction of Columns": self.generate_count_as_fraction_of_columns,
+            "Sample Variance": self.generate_sample_variance,
+            "Sample Standard Deviation": self.generate_sample_standart_deviation,
         }
 
         generate_method = aggfunc_type.get(aggfunc)
@@ -134,3 +136,70 @@ class CustomTotalForPivot:
 
         self.df = df_normalized
         return df_normalized
+    
+    def generate_sample_variance(self, show_rows_total: bool, show_columns_total: bool):
+        # Computing sample variance along rows
+        def row_sample_variance(row):
+            n = row.count()  # number of non-NaN data points
+            if n <= 1:  # to avoid division by zero
+                return np.nan
+            mean = row.mean()
+            return ((row - mean) ** 2).sum() / (n - 1)
+
+        # Computing sample variance along columns
+        def col_sample_variance(col):
+            n = col.count()
+            if n <= 1:
+                return np.nan
+            mean = col.mean()
+            return ((col - mean) ** 2).sum() / (n - 1)
+
+        if show_rows_total:
+            self.df['Подытог'] = self.df.apply(row_sample_variance, axis=1)
+            self.df['Total (Sample Variance)'] = self.df['Подытог']
+
+        if show_columns_total:
+            column_variances = self.df.apply(col_sample_variance)
+
+            if show_rows_total:
+                column_variances['Подытог'] = column_variances.drop(['Подытог', 'Total (Sample Variance)']).mean()
+                column_variances['Total (Sample Variance)'] = self.df['Подытог'].mean()
+
+            self.df.loc['Total (Sample Variance)'] = column_variances
+
+        return self.df
+        
+    def generate_sample_standart_deviation(self, show_rows_total: bool, show_columns_total: bool):
+    # Computing sample standard deviation along rows
+        def row_sample_std(row):
+            n = row.count()  # number of non-NaN data points
+            if n <= 1:  # to avoid division by zero
+                return np.nan
+            mean = row.mean()
+            variance = ((row - mean) ** 2).sum() / (n - 1)
+            return np.sqrt(variance)
+
+        # Computing sample standard deviation along columns
+        def col_sample_std(col):
+            n = col.count()
+            if n <= 1:
+                return np.nan
+            mean = col.mean()
+            variance = ((col - mean) ** 2).sum() / (n - 1)
+            return np.sqrt(variance)
+
+        if show_rows_total:
+            self.df['Подытог'] = self.df.apply(row_sample_std, axis=1)
+            self.df['Total (Sample Standard Deviation)'] = self.df['Подытог']
+
+        if show_columns_total:
+            column_std_devs = self.df.apply(col_sample_std)
+
+            if show_rows_total:
+                column_std_devs['Подытог'] = column_std_devs.drop(['Подытог', 'Total (Sample Standard Deviation)']).mean()
+                column_std_devs['Total (Sample Standard Deviation)'] = self.df['Подытог'].mean()
+
+            self.df.loc['Total (Sample Standard Deviation)'] = column_std_devs
+
+        return self.df
+        
