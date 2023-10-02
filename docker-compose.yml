@@ -18,7 +18,7 @@ x-superset-image: &superset-image
   build:
     context: .
     dockerfile: Dockerfile
-  image: custom-superset:1.5.2
+  image: custom-superset:1.5.3
 
 x-superset-user: &superset-user root
 x-superset-depends-on: &superset-depends-on

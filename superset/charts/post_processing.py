@@ -171,6 +171,7 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
                 # insert column after subgroup
                 if subtotal_name not in df.columns:
                     df.insert(int(slice_.stop), subtotal_name, subtotal)
+        df['Total (Sum)'] = df.filter(like='Подытог').sum(axis=1)
 
     if rows and show_columns_total and aggfunc not in aggfuncs_without_axis_argument:
         # add subtotal for each group and overall total; we start from the

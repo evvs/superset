@@ -1747,7 +1747,12 @@ def extract_dataframe_dtypes(
     generic_types: List[GenericDataType] = []
     for column in df.columns:
         column_object = columns_by_name.get(column)
-        series = df[column]
+        if column in df.columns:
+            series = df[column]
+            ...
+        else:
+            print(f"Column '{column}' not found in DataFrame", flush=True)
+            continue  # handle it in some other way
         inferred_type = infer_dtype(series)
         if isinstance(column_object, dict):
             generic_type = (

@@ -101,9 +101,9 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                 **kwargs: Any) -> bytes:
     output = io.BytesIO()
     date_format_by_column_name = {}
+    index_already_reset = False
 
     if is_pivot(slice):
-
         if (not from_report):
             df = pivot_table_v2(df, slice.form_data, datasource)
 
@@ -111,14 +111,31 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
             df.columns = [' '.join(map(str, col)).strip()
                           for col in df.columns.values]
 
+        if isinstance(df.index, pd.MultiIndex):
+            index_already_reset = True
+            df.reset_index(inplace=True)
+        else:
+            index_already_reset = False
+
         groupbyRows = slice.form_data.get("groupbyRows")
-        if groupbyRows and len(groupbyRows) == 1:
+        if groupbyRows:
             verbose_map = datasource.data["verbose_map"] if datasource else None
-            df = df.reset_index().rename(
-                columns={"level_0": get_column_names(groupbyRows, verbose_map)[0]}).rename(
-                    columns={"index": get_column_names(
-                        groupbyRows, verbose_map)[0]}
-            )
+
+            # Only reset the index if it hasn't been reset earlier
+            if not index_already_reset:
+                df.reset_index(inplace=True)
+
+            rename_dict = {}
+            for i, groupby in enumerate(groupbyRows):
+                rename_dict[f'level_{i}'] = get_column_names([groupby], verbose_map)[0]
+
+            # Check if the "index" column exists and rename it to the first groupby column
+            # This may be unnecessary, but added just in case.
+            if 'index' in df.columns:
+                rename_dict['index'] = get_column_names([groupbyRows[0]], verbose_map)[0]
+
+            df.rename(columns=rename_dict, inplace=True)
+
         if bool(slice.form_data.get("rowTotals")):
             last_col_name = df.columns[-1]
             translated_col_name = translate_aggfunc_name(last_col_name)
@@ -129,7 +146,7 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
             translated_values = last_row_values.map(translate_aggfunc_name)
     
             df.iloc[-1, :] = translated_values
-
+    
     if slice:
         try:
             column_config = slice.form_data.get("column_config")
@@ -240,4 +257,5 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                 except BaseException as err:
                     logger.error("ERROR WITH GENERATING CHART")
                     logger.error(err)
+
     return output.getvalue()
