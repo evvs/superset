@@ -6,6 +6,7 @@ from typing import Union
 from superset.models.slice import Slice
 from superset.manzana_custom.excel.generate_chart import GenerateChart
 from superset.manzana_custom.excel.pivot import is_pivot
+from superset.manzana_custom.excel.conditional_formatting import ConditionalFormatting
 from superset.connectors.base.models import BaseDatasource
 
 from superset.charts.post_processing import pivot_table_v2
@@ -14,6 +15,10 @@ from superset.utils.core import get_column_names
 import logging
 import datetime
 import numpy as np
+import re
+
+from xlsxwriter import Workbook
+
 
 def is_valid_date(date_string: str, date_format: str) -> bool:
     try:
@@ -86,7 +91,7 @@ def format_number(number, d3NumberFormat):
 logger = logging.getLogger(__name__)
 
 request_to_excel_format = {
-    'smart_date': 'd mmmm yyyy',
+    'smart_date': '%d.%m.%Y',
     '%d.%m.%Y': 'dd/mm/yyyy',
     '%d/%m/%Y': 'dd/mm/yyyy',
     '%m/%d/%Y': 'mm/dd/yyyy',
@@ -96,13 +101,37 @@ request_to_excel_format = {
     '%H:%M:%S': 'hh:mm:ss',
 }
 
+def format_unixtimestamp_in_colname(df, date_format, workbook: Workbook, worksheet, header_format):    
+    def is_unix_timestamp(s):
+        pattern = re.compile(r"\d{10,13}(\.\d+)?")
+        return bool(pattern.fullmatch(s))
+    
+    new_col_names = []
+    
+    for col in df.columns:
+        parts = col.split(" ")
+        new_parts = [
+            datetime.datetime.utcfromtimestamp(float(part)/1000).strftime(date_format)
+            if is_unix_timestamp(part) else part
+            for part in parts
+        ]
+        new_col_names.append(" ".join(new_parts))
+    
+    df.columns = new_col_names
+    
+
+    for col_num, value in enumerate(new_col_names):
+        if isinstance(value, tuple):
+            value = value[0]
+        worksheet.write(0, col_num, value, header_format)
+
+
 def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice: Union[Slice, None] = None,
                 datasource: Union[BaseDatasource, None] = None,
                 **kwargs: Any) -> bytes:
     output = io.BytesIO()
     date_format_by_column_name = {}
     index_already_reset = False
-
     if is_pivot(slice):
         if (not from_report):
             df = pivot_table_v2(df, slice.form_data, datasource)
@@ -221,21 +250,26 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                         lambda x: is_valid_date(str(x), date_format_from_dict))
                     try:
                         # Convert only valid dates to datetime64 format first
-                        column_data[valid_dates_mask] = pd.to_datetime(
-                            column_data[valid_dates_mask], format=date_format_from_dict)
+                        valid_dates = column_data[valid_dates_mask]
+                        valid_dates_converted = pd.to_datetime(valid_dates, format=date_format_from_dict, errors='coerce')
+
+                        # Handle or replace NaT values after conversion if necessary
+                        valid_dates_converted.fillna("YourPlaceholderOrAction", inplace=True)  # Consider what you want to do with NaT values
+
+                        column_data[valid_dates_mask] = valid_dates_converted
+
                         # Convert datetime64 format to Excel's datetime format
-                        excel_format = request_to_excel_format.get(
-                            date_format_from_dict, 'd mmmm yyyy')
-                        date_format = workbook.add_format(
-                            {'num_format': excel_format})
+                        excel_format = request_to_excel_format.get(date_format_from_dict, 'd mmmm yyyy')
+                        date_format = workbook.add_format({'num_format': excel_format})
+
                         # Apply date formatting in Excel
                         for row_num, date_val in enumerate(column_data):
                             if valid_dates_mask.iloc[row_num]:
-                                worksheet.write_datetime(
-                                    row_num + 1, col_num, date_val, date_format)  # +1 to skip header
-                    except BaseException as err:
+                                worksheet.write_datetime(row_num + 1, col_num, date_val, date_format)  # +1 to skip header
+
+                    except Exception as err:  # Using BaseException might be too broad. Using Exception is generally recommended for catching unexpected errors
                         logger.error("ERROR WITH CONVERTING pd.to_datetime")
-                        logger.error(err)
+                        logger.error(f"Column: {value}, Error: {err}")
 
         if from_report:  # manzana custom
             worksheet.write(0, len(df.columns.values), None,
@@ -257,5 +291,19 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                 except BaseException as err:
                     logger.error("ERROR WITH GENERATING CHART")
                     logger.error(err)
+
+            
+            if slice.form_data.get("conditional_formatting") and datasource.data["verbose_map"]: # type: ignore
+                instance = ConditionalFormatting(df, workbook, worksheet, datasource.data["verbose_map"], is_pivot(slice)) # type: ignore
+                instance.generate(slice.form_data.get("conditional_formatting")) # type: ignore
+        
+        if(from_report):
+            try:
+                date_format_key = slice.form_data.get("date_format")
+                if (date_format_key):
+                    date_format = request_to_excel_format.get(date_format_key, 'dd/mm/yyyy')
+                    format_unixtimestamp_in_colname(df, date_format, workbook, worksheet, header_format) # type: ignore
+            except Exception as err:
+                logger.error(f"ERROR WHEN TRYING FORMAT DATE from report")
 
     return output.getvalue()
