@@ -75,6 +75,15 @@ class ConditionalFormatting:
 
             if operator == "None":
                 mapped_column_name = self.verbose_map.get(column, column)
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}")    
+
                 min_val = float(self.df[mapped_column_name].min())
                 max_val = float(self.df[mapped_column_name].max())
             
@@ -99,10 +108,24 @@ class ConditionalFormatting:
                 
                 mapped_column_name = self.verbose_map.get(column, column)
 
-                applicable_values = self.df[self.df[mapped_column_name] > target_value][mapped_column_name]
+                try:
+                    for idx, item in self.df[mapped_column_name].iteritems():
+                        try:
+                            # Attempt to remove commas and convert to a number
+                            self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                        except AttributeError:
+                            # Handle non-string data - log, pass, or handle as appropriate
+                            logging.debug(f"Non-string data at index {idx}: {item}")                    
+                    
+                    applicable_values = self.df[self.df[mapped_column_name] > target_value][mapped_column_name]
+                except TypeError as e:
+                    logging.error(f"TypeError encountered: {str(e)}")
+                    logging.error(f"Skipping conditional formatting for {mapped_column_name}. Ensure that data types are consistent.")
+                    continue
                 if applicable_values.empty:
                     logging.warning(f"No values found larger than {target_value} in column {mapped_column_name}. Skipping...")
                     continue
+
                 
                 max_val = float(applicable_values.max())
                 min_val = float(applicable_values.min())
@@ -112,17 +135,18 @@ class ConditionalFormatting:
                 lightest_color_limit = 100
 
                 for idx, value in enumerate(self.df[mapped_column_name]):
-                    if pd.isna(value) or pd.isna(min_val):
+                    if pd.isna(value):
                         continue
-                    value = float(value) 
+                    value = float(value)
+                    cell_format = self.workbook.add_format()
                     if value > target_value:
-                        # Ensure higher values are darker and adjust intensity to not get too light.
+                        # Your existing code for setting color for values > target_value
                         intensity = lightest_color_limit + int((255 - lightest_color_limit) * ((value - min_val) / scale))
-
-                        cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+
+                    # Writing the (numerical) value to Excel, using the (possibly modified) format
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "<":
                 target_value = condition.get('targetValue')
@@ -130,6 +154,13 @@ class ConditionalFormatting:
                     logging.warning('Target value is not provided for operator "<". Skipping...')
                     continue
                 mapped_column_name = self.verbose_map.get(column, column)
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}")    
 
                 applicable_values = self.df[self.df[mapped_column_name] < target_value][mapped_column_name]
                 if applicable_values.empty:
@@ -147,13 +178,12 @@ class ConditionalFormatting:
                     if pd.isna(value) or pd.isna(min_val):
                         continue
                     value = float(value) 
+                    cell_format = self.workbook.add_format()
                     if value < target_value:
                         intensity = lightest_color_limit + int((255 - lightest_color_limit) * (1 - (value - min_val) / scale))
-
-                        cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "≥":
                 target_value = condition.get('targetValue')
@@ -162,6 +192,15 @@ class ConditionalFormatting:
                     continue
                 
                 mapped_column_name = self.verbose_map.get(column, column)
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}")    
+
                 applicable_values = self.df[self.df[mapped_column_name] >= target_value][mapped_column_name]
                 if applicable_values.empty:
                     logging.warning(f"No values found larger or equal to {target_value} in column {mapped_column_name}. Skipping...")
@@ -178,13 +217,14 @@ class ConditionalFormatting:
                     if pd.isna(value) or pd.isna(min_val):
                         continue
                     value = float(value) 
+                    cell_format = self.workbook.add_format()
+
                     if value >= target_value:
                         # Ensure higher values are darker and adjust intensity to not get too light.
                         intensity = lightest_color_limit + int((255 - lightest_color_limit) * ((value - min_val) / scale))
-                        cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "≤":
                 target_value = condition.get('targetValue')
@@ -193,6 +233,15 @@ class ConditionalFormatting:
                     continue
                 
                 mapped_column_name = self.verbose_map.get(column, column)
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}") 
+
                 applicable_values = self.df[self.df[mapped_column_name] <= target_value][mapped_column_name]
                 if applicable_values.empty:
                     logging.warning(f"No values found smaller or equal to {target_value} in column {mapped_column_name}. Skipping...")
@@ -209,13 +258,13 @@ class ConditionalFormatting:
                     if pd.isna(value) or pd.isna(min_val):
                         continue
                     value = float(value)
+                    cell_format = self.workbook.add_format()
                     if value <= target_value:
                         # Ensure lower values are darker and adjust intensity to not get too light.
                         intensity = lightest_color_limit + int((255 - lightest_color_limit) * (1 - (value - min_val) / scale))
-                        cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "=":
                 target_value = condition.get('targetValue')
@@ -224,16 +273,24 @@ class ConditionalFormatting:
                     continue
                 
                 mapped_column_name = self.verbose_map.get(column, column)
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}") 
+
                 for idx, value in enumerate(self.df[mapped_column_name]):
                     if pd.isna(value):
                         continue
                     value = float(value)
-
+                    cell_format = self.workbook.add_format()
                     if value == target_value:
-                        cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(color)  # Using provided colorScheme directly.
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "≠":
                 target_value = condition.get('targetValue')
@@ -242,6 +299,15 @@ class ConditionalFormatting:
                     continue
 
                 mapped_column_name = self.verbose_map.get(column, column)
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}") 
+
                 applicable_values = self.df[self.df[mapped_column_name] != target_value][mapped_column_name]
                 if applicable_values.empty:
                     logging.warning(f"No values found not equal to {target_value} in column {mapped_column_name}. Skipping...")
@@ -258,14 +324,13 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
                     value = float(value)
-
+                    cell_format = self.workbook.add_format()
                     if value != target_value:
                         # Ensure values furthest from the target are darker.
                         intensity = darkest_color_limit + int((255 - darkest_color_limit) * abs(value - target_value) / scale)
-                        cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "< x <":
                 target_value_left = condition.get('targetValueLeft')
@@ -277,6 +342,15 @@ class ConditionalFormatting:
                 target_value_left, target_value_right = float(target_value_left), float(target_value_right)
 
                 mapped_column_name = self.verbose_map.get(column, column)
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}") 
+
                 applicable_values = self.df[(self.df[mapped_column_name] > target_value_left) & (self.df[mapped_column_name] < target_value_right)][mapped_column_name]
                 if applicable_values.empty:
                     logging.warning(f"No values found between {target_value_left} and {target_value_right} in column {mapped_column_name}. Skipping...")
@@ -291,13 +365,14 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
                     value = float(value)
+                    cell_format = self.workbook.add_format()
                     if target_value_left < value < target_value_right:
                         # Ensure values closer to the targetValueLeft are lighter.
                         intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
                         cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "≤ x ≤":
                 target_value_left = condition.get('targetValueLeft')
@@ -309,6 +384,15 @@ class ConditionalFormatting:
                 target_value_left, target_value_right = float(target_value_left), float(target_value_right)
 
                 mapped_column_name = self.verbose_map.get(column, column)
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}") 
+
                 applicable_values = self.df[(self.df[mapped_column_name] >= target_value_left) & (self.df[mapped_column_name] <= target_value_right)][mapped_column_name]
                 if applicable_values.empty:
                     logging.warning(f"No values found between {target_value_left} and {target_value_right} in column {mapped_column_name}. Skipping...")
@@ -322,14 +406,14 @@ class ConditionalFormatting:
                 for idx, value in enumerate(self.df[mapped_column_name]):
                     if pd.isna(value):
                         continue
+                    cell_format = self.workbook.add_format()
                     value = float(value)
                     if target_value_left <= value <= target_value_right:
                         # Ensure values closer to the targetValueLeft are lighter.
                         intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
-                        cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "≤ x <":
                 target_value_left = condition.get('targetValueLeft')
@@ -341,6 +425,17 @@ class ConditionalFormatting:
                 target_value_left, target_value_right = float(target_value_left), float(target_value_right)
 
                 mapped_column_name = self.verbose_map.get(column, column)
+
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}") 
+
+                
                 applicable_values = self.df[(self.df[mapped_column_name] >= target_value_left) & (self.df[mapped_column_name] < target_value_right)][mapped_column_name]
                 if applicable_values.empty:
                     logging.warning(f"No values found between {target_value_left} and {target_value_right} in column {mapped_column_name}. Skipping...")
@@ -354,6 +449,8 @@ class ConditionalFormatting:
                 for idx, value in enumerate(self.df[mapped_column_name]):
                     if pd.isna(value):
                         continue
+
+                    cell_format = self.workbook.add_format()
                     value = float(value)
                     if target_value_left <= value < target_value_right:
                         # Ensure values closer to the targetValueLeft are lighter.
@@ -361,7 +458,7 @@ class ConditionalFormatting:
                         cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             elif operator == "< x ≤":
                 target_value_left = condition.get('targetValueLeft')
@@ -373,6 +470,15 @@ class ConditionalFormatting:
                 target_value_left, target_value_right = float(target_value_left), float(target_value_right)
 
                 mapped_column_name = self.verbose_map.get(column, column)
+
+                for idx, item in self.df[mapped_column_name].iteritems():
+                    try:
+                        # Attempt to remove commas and convert to a number
+                        self.df.at[idx, mapped_column_name] = pd.to_numeric(item.replace(',', ''), errors='coerce')
+                    except AttributeError:
+                        # Handle non-string data - log, pass, or handle as appropriate
+                        logging.debug(f"Non-string data at index {idx}: {item}") 
+
                 applicable_values = self.df[(self.df[mapped_column_name] > target_value_left) & (self.df[mapped_column_name] <= target_value_right)][mapped_column_name]
                 if applicable_values.empty:
                     logging.warning(f"No values found between {target_value_left} and {target_value_right} in column {mapped_column_name}. Skipping...")
@@ -387,14 +493,14 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
                     value = float(value)
+                    cell_format = self.workbook.add_format()
 
                     if target_value_left < value <= target_value_right:
                         # Ensure values closer to the targetValueLeft are lighter.
                         intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
-                        cell_format = self.workbook.add_format()
                         cell_format.set_pattern(1)
                         cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                        self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
 
             else:
                 # Additional logic for other operators can be added here.
