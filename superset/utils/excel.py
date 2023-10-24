@@ -19,6 +19,19 @@ import re
 
 from xlsxwriter import Workbook
 
+def contains_formatted_percentage(s):
+    try:
+        float(s.strip('%'))
+        return True
+    except ValueError:
+        return False
+
+def is_string_representation_of_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 def is_valid_date(date_string: str, date_format: str) -> bool:
     try:
@@ -57,9 +70,15 @@ def translate_aggfunc_name(col_name):
         col_name = col_name.replace(key, value)
     return col_name.strip()
 
+def percent_to_float(val):
+    if isinstance(val, str) and 'nan%' in val:
+        return np.nan
+    elif isinstance(val, str) and '%' in val:
+        return float(val.strip('%'))
+    return val
 
 def format_number(number, d3NumberFormat):
-    if np.isnan(number):
+    if pd.isnull(number):
         return ''
     if d3NumberFormat == ',d':
         return '{:,.0f}'.format(number)
@@ -183,10 +202,17 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                 for idx, column in enumerate(df.columns):
                     col_name = column if not isinstance(
                         column, tuple) else column[0]
+
+                    # Check if column contains formatted percentages
+                    if df[column].apply(lambda x: isinstance(x, str) and contains_formatted_percentage(x)).any():
+                        continue
+                    
+                    # Check if column has string representations of numbers and try converting them to float
+                    if df[column].apply(lambda x: isinstance(x, str) and is_string_representation_of_number(x)).any():
+                        df[column] = df[column].apply(lambda x: float(x) if is_string_representation_of_number(x) else x)
+
                     in_column_config = column_config.get(
                         col_name)
-                    
-
 
                     if not in_column_config:
                         verbose_map = datasource.data["verbose_map"]
@@ -197,6 +223,7 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                         date_format_from_request = in_column_config.get(
                             "d3TimeFormat")
                         number_format_from_request = in_column_config.get("d3NumberFormat")
+                        small_number_format_from_request = in_column_config.get("d3SmallNumberFormat")
 
                         if date_format_from_request and date_format_from_request != "smart_date":
                             date_format_by_column_name[df[column]
@@ -204,12 +231,13 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                             df[column] = pd.to_datetime(df[column])
                             df[column] = df[column].dt.strftime(
                                 date_format_from_request)
-                        elif number_format_from_request and number_format_from_request != "my_format":
+                        elif small_number_format_from_request and small_number_format_from_request not in ["my_format", "SMART_NUMBER"]:
+                            df[column] = df[column].apply(lambda x: format_number(x, small_number_format_from_request))
+                        elif not small_number_format_from_request and number_format_from_request and number_format_from_request not in ["my_format", "SMART_NUMBER"]:
                             df[column] = df[column].apply(lambda x: format_number(x, number_format_from_request))
         except Exception as err:
             logger.error(f"ERROR WHEN TRYING FORMAT DATE for column: {column}")
             logger.error(
-                # f"Data type of the column before conversion: {df[column].dtype}") maybe check later
                 f"Data type of the column before conversion: {df[column]}")
             logger.error(err)
 
@@ -305,5 +333,26 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                     format_unixtimestamp_in_colname(df, date_format, workbook, worksheet, header_format) # type: ignore
             except Exception as err:
                 logger.error(f"ERROR WHEN TRYING FORMAT DATE from report")
+
+        bold_format = workbook.add_format({'bold': True})
+        if is_pivot(slice):
+            if bool(slice.form_data.get("rowTotals")):
+                col_idx = len(df.columns) - 1  # index of the last column
+    
+                # For the header of the last column, use the header format.
+                worksheet.write(0, col_idx, df.columns[col_idx], header_format)
+    
+                # For the rest of the rows in the last column, use the bold format.
+                for row_num in range(1, len(df) + 1):
+                    cell_value = df.iloc[row_num - 1, col_idx]
+                    worksheet.write(row_num, col_idx, cell_value, bold_format)
+
+        if bool(slice.form_data.get("colTotals")):
+            row_idx = len(df)  # index of the last row
+            bold_format = workbook.add_format({'bold': True})
+        
+            for col_num in range(len(df.columns)):
+                cell_value = df.iloc[row_idx - 1, col_num]
+                worksheet.write(row_idx, col_num, cell_value, bold_format)
 
     return output.getvalue()
