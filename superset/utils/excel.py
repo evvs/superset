@@ -82,6 +82,7 @@ def percent_to_float(val):
         return float(val.strip('%'))
     return val
 
+
 logger = logging.getLogger(__name__)
 
 request_to_excel_format = {
@@ -239,21 +240,31 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
                         # skip first column here
                         if col_num == 0:
                             continue
-                        formatter.apply_format_to_column(worksheet, col_num, df, valueFormat)    
+                        formatter.apply_format_to_column(
+                            worksheet, col_num, df, valueFormat)
                 else:
                     column_config = slice.form_data.get("column_config")
-                    print("column_config!!!", column_config, flush=True)
                     if column_config:
                         in_column_config = column_config.get(value)
+                        if not in_column_config:
+                            verbose_map = datasource.data["verbose_map"]
+                            if verbose_map:
+                                verbosed_name = next(
+                                    (key for key, map_value in verbose_map.items() if map_value == value), None)
+                                in_column_config = column_config.get(
+                                    verbosed_name)
                         if in_column_config:
-                        # print(col_num, value, in_column_config, flush=True) # Births {'d3NumberFormat': ',d'}
-                            d3NumberFormat = in_column_config.get('d3NumberFormat')
-                            d3SmallNumberFormat = in_column_config.get('d3SmallNumberFormat')
+                            d3NumberFormat = in_column_config.get(
+                                'd3NumberFormat')
+                            d3SmallNumberFormat = in_column_config.get(
+                                'd3SmallNumberFormat')
                             if in_column_config:
                                 if d3NumberFormat and d3NumberFormat != "SMART_NUMBER":
-                                    formatter.apply_format_to_column(worksheet, col_num, df, in_column_config.get('d3NumberFormat'))
-                                elif  d3SmallNumberFormat:
-                                    formatter.apply_format_to_column(worksheet, col_num, df, in_column_config.get('d3SmallNumberFormat'))
+                                    formatter.apply_format_to_column(
+                                        worksheet, col_num, df, in_column_config.get('d3NumberFormat'))
+                                elif d3SmallNumberFormat:
+                                    formatter.apply_format_to_column(
+                                        worksheet, col_num, df, in_column_config.get('d3SmallNumberFormat'))
 
             if value in df.columns:
                 column_data = df[value]
@@ -318,7 +329,7 @@ def df_to_excel(df: pd.DataFrame, sheet_name='Sheet1', from_report=False, slice:
             # type: ignore
             if slice.form_data.get("conditional_formatting") and datasource.data["verbose_map"]:
                 instance = ConditionalFormatting(
-                    df, workbook, worksheet, datasource.data["verbose_map"], is_pivot(slice))  # type: ignore
+                    df, workbook, worksheet, formatter, datasource.data["verbose_map"], is_pivot(slice))  # type: ignore
                 instance.generate(slice.form_data.get(
                     "conditional_formatting"))  # type: ignore
 

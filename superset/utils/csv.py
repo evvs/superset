@@ -163,5 +163,4 @@ def get_chart_dataframe(
         tuple(indexname) if isinstance(indexname, list) else (indexname,)
         for indexname in result["result"][0]["indexnames"]
     )
-
     return df

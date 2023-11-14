@@ -3,6 +3,7 @@ from pandas import DataFrame
 from typing import Any, List, Dict, Optional
 import pandas as pd
 import logging
+from superset.manzana_custom.excel.excel_column_formatter import ExcelColumnFormatter
 
 bands = [
     (0, 2000000, 50), 
@@ -13,12 +14,13 @@ bands = [
 ]
 
 class ConditionalFormatting:
-    def __init__(self, df: DataFrame, workbook: Workbook, worksheet: Any, verbose_map: Any, is_pivot: bool = False):
+    def __init__(self, df: DataFrame, workbook: Workbook, worksheet: Any, formatter: ExcelColumnFormatter, verbose_map: Any, is_pivot: bool = False):
         self.df = df
         self.workbook = workbook
         self.worksheet = worksheet
         self.verbose_map = verbose_map
         self.is_pivot = is_pivot
+        self.formatter = formatter  # ExcelColumnFormatter instance
 
     def _generate_dynamic_mappings(self, conditional_formatting_array: List[Dict[str, Any]]):
         original_verbose_map = self.verbose_map
@@ -61,7 +63,13 @@ class ConditionalFormatting:
                 new_conditional_formatting_array.append(new_conditional_formatting_entry)
 
         return new_verbose_map, new_conditional_formatting_array
-        
+
+    def apply_conditional_format(self, cell_key, col_idx, value, condition_properties):
+        existing_properties = self.formatter.format_properties.get(col_idx, {})
+        combined_properties = {**existing_properties, **condition_properties}
+        conditional_format = self.workbook.add_format(combined_properties)
+        self.worksheet.write(cell_key[0], col_idx, value, conditional_format)
+
     def generate(self, conditional_formatting_array: List[Dict[str, Any]]):
         if self.is_pivot:
             self.verbose_map, conditional_formatting_array = self._generate_dynamic_mappings(conditional_formatting_array)
@@ -95,10 +103,13 @@ class ConditionalFormatting:
                     value = float(value)  # ensuring value is float
                     intensity = int(255 * ((value - min_val) / scale))
 
-                    cell_format = self.workbook.add_format()
-                    cell_format.set_pattern(1)
-                    cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    cell_key = (idx + 1, col_idx)
+                    condition_met = True
+
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == ">":
                 target_value = condition.get('targetValue')
@@ -138,15 +149,17 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
                     value = float(value)
-                    cell_format = self.workbook.add_format()
-                    if value > target_value:
-                        # Your existing code for setting color for values > target_value
-                        intensity = lightest_color_limit + int((255 - lightest_color_limit) * ((value - min_val) / scale))
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
 
-                    # Writing the (numerical) value to Excel, using the (possibly modified) format
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    # Determine cell key and check if a format has already been applied
+
+                    cell_key = (idx + 1, col_idx)
+                    condition_met = value > target_value
+
+                    intensity = lightest_color_limit + int((255 - lightest_color_limit) * ((value - min_val) / scale))
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "<":
                 target_value = condition.get('targetValue')
@@ -178,12 +191,13 @@ class ConditionalFormatting:
                     if pd.isna(value) or pd.isna(min_val):
                         continue
                     value = float(value) 
-                    cell_format = self.workbook.add_format()
-                    if value < target_value:
-                        intensity = lightest_color_limit + int((255 - lightest_color_limit) * (1 - (value - min_val) / scale))
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    cell_key = (idx + 1, col_idx)
+                    condition_met = value < target_value
+                    intensity = lightest_color_limit + int((255 - lightest_color_limit) * (1 - (value - min_val) / scale))
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "≥":
                 target_value = condition.get('targetValue')
@@ -217,14 +231,13 @@ class ConditionalFormatting:
                     if pd.isna(value) or pd.isna(min_val):
                         continue
                     value = float(value) 
-                    cell_format = self.workbook.add_format()
-
-                    if value >= target_value:
-                        # Ensure higher values are darker and adjust intensity to not get too light.
-                        intensity = lightest_color_limit + int((255 - lightest_color_limit) * ((value - min_val) / scale))
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    intensity = lightest_color_limit + int((255 - lightest_color_limit) * ((value - min_val) / scale))
+                    cell_key = (idx + 1, col_idx)
+                    condition_met = value >= target_value
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "≤":
                 target_value = condition.get('targetValue')
@@ -259,12 +272,14 @@ class ConditionalFormatting:
                         continue
                     value = float(value)
                     cell_format = self.workbook.add_format()
-                    if value <= target_value:
                         # Ensure lower values are darker and adjust intensity to not get too light.
-                        intensity = lightest_color_limit + int((255 - lightest_color_limit) * (1 - (value - min_val) / scale))
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    intensity = lightest_color_limit + int((255 - lightest_color_limit) * (1 - (value - min_val) / scale))
+                    cell_key = (idx + 1, col_idx)
+                    condition_met = value <= target_value
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "=":
                 target_value = condition.get('targetValue')
@@ -286,11 +301,12 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
                     value = float(value)
-                    cell_format = self.workbook.add_format()
-                    if value == target_value:
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(color)  # Using provided colorScheme directly.
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    cell_key = (idx + 1, col_idx)
+                    condition_met = value == target_value
+                    condition_properties = {
+                        'bg_color': color if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "≠":
                 target_value = condition.get('targetValue')
@@ -324,13 +340,14 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
                     value = float(value)
-                    cell_format = self.workbook.add_format()
-                    if value != target_value:
-                        # Ensure values furthest from the target are darker.
-                        intensity = darkest_color_limit + int((255 - darkest_color_limit) * abs(value - target_value) / scale)
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+
+                    intensity = darkest_color_limit + int((255 - darkest_color_limit) * abs(value - target_value) / scale)
+                    cell_key = (idx + 1, col_idx)
+                    condition_met = value != target_value
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "< x <":
                 target_value_left = condition.get('targetValueLeft')
@@ -365,14 +382,13 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
                     value = float(value)
-                    cell_format = self.workbook.add_format()
-                    if target_value_left < value < target_value_right:
-                        # Ensure values closer to the targetValueLeft are lighter.
-                        intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
-                        cell_format = self.workbook.add_format()
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
+                    cell_key = (idx + 1, col_idx)
+                    condition_met =  target_value_left < value < target_value_right
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "≤ x ≤":
                 target_value_left = condition.get('targetValueLeft')
@@ -406,14 +422,14 @@ class ConditionalFormatting:
                 for idx, value in enumerate(self.df[mapped_column_name]):
                     if pd.isna(value):
                         continue
-                    cell_format = self.workbook.add_format()
                     value = float(value)
-                    if target_value_left <= value <= target_value_right:
-                        # Ensure values closer to the targetValueLeft are lighter.
-                        intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
+                    cell_key = (idx + 1, col_idx)
+                    condition_met =  target_value_left <= value <= target_value_right
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "≤ x <":
                 target_value_left = condition.get('targetValueLeft')
@@ -450,15 +466,14 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
 
-                    cell_format = self.workbook.add_format()
                     value = float(value)
-                    if target_value_left <= value < target_value_right:
-                        # Ensure values closer to the targetValueLeft are lighter.
-                        intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
-                        cell_format = self.workbook.add_format()
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
+                    cell_key = (idx + 1, col_idx)
+                    condition_met =  target_value_left <= value < target_value_right
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             elif operator == "< x ≤":
                 target_value_left = condition.get('targetValueLeft')
@@ -493,14 +508,14 @@ class ConditionalFormatting:
                     if pd.isna(value):
                         continue
                     value = float(value)
-                    cell_format = self.workbook.add_format()
 
-                    if target_value_left < value <= target_value_right:
-                        # Ensure values closer to the targetValueLeft are lighter.
-                        intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
-                        cell_format.set_pattern(1)
-                        cell_format.set_bg_color(self._get_color_intensity(color, intensity))
-                    self.worksheet.write(idx + 1, col_idx, value, cell_format)
+                    intensity = darkest_color_limit + int((255 - darkest_color_limit) * (value - target_value_left) / scale)
+                    cell_key = (idx + 1, col_idx)
+                    condition_met = target_value_left < value <= target_value_right
+                    condition_properties = {
+                        'bg_color': self._get_color_intensity(color, intensity) if condition_met else "white"
+                    }
+                    self.apply_conditional_format(cell_key, col_idx, value, condition_properties)
 
             else:
                 # Additional logic for other operators can be added here.
