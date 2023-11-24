@@ -19745,4 +19745,4 @@ msgid "Send as PDF"
 msgstr "Отправить в формате PDF"
 
 msgid "Formatted PDF attached in email"
-msgstr "Форматированный Excel, прикрепленный к письму"
+msgstr "Форматированный PDF, прикрепленный к письму"
