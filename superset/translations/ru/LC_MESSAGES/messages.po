@@ -19737,3 +19737,12 @@ msgstr "Имя файла"
 
 msgid "Add a date with a prefix"
 msgstr "Добавить дату префиксом"
+
+msgid "Export to PDF"
+msgstr "Экспорт в PDF"
+
+msgid "Send as PDF"
+msgstr "Отправить в формате PDF"
+
+msgid "Formatted PDF attached in email"
+msgstr "Форматированный Excel, прикрепленный к письму"

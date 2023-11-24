@@ -414,6 +414,7 @@ const TRANSLATIONS = {
   SEND_AS_PNG_TEXT: t('Send as PNG'),
   SEND_AS_CSV_TEXT: t('Send as CSV'),
   SEND_AS_XLSX_TEXT: t('Send as Excel'),
+  SEND_AS_PDF: t('Send as PDF'),
   SEND_AS_TEXT: t('Send as text'),
   IGNORE_CACHE_TEXT: t('Ignore cache when generating screenshot'),
   NOTIFICATION_METHOD_TEXT: t('Notification method'),
@@ -1502,6 +1503,9 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
                     </StyledRadio>
                     <StyledRadio value="XLSX">
                       {TRANSLATIONS.SEND_AS_XLSX_TEXT}
+                    </StyledRadio>
+                    <StyledRadio value="PDF">
+                      {TRANSLATIONS.SEND_AS_PDF}
                     </StyledRadio>
                     {TEXT_BASED_VISUALIZATION_TYPES.includes(chartVizType) && (
                       <StyledRadio value="TEXT">

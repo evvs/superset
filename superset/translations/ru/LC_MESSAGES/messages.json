@@ -6043,7 +6043,12 @@
       "Cc": ["Копия"],
       "Bcc": ["Скрытая копия"],
       "Filename": ["Имя файла"],
-      "Add a date with a prefix": ["Добавить дату префиксом"]
+      "Add a date with a prefix": ["Добавить дату префиксом"],
+      "Export to PDF": ["Экспорт в PDF"],
+      "Send as PDF": ["Отправить в формате PDF"],
+      "Formatted PDF attached in email": [
+        "Форматированный Excel, прикрепленный к письму"
+      ]
     }
   }
 }
